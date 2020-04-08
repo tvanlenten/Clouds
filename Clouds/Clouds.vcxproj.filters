@@ -1,0 +1,83 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="includes\ImGui\GUI.cpp" />
+    <ClCompile Include="includes\ImGui\imgui.cpp" />
+    <ClCompile Include="includes\ImGui\imgui_draw.cpp" />
+    <ClCompile Include="includes\ImGui\imgui_impl_glfw.cpp" />
+    <ClCompile Include="includes\ImGui\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="includes\ImGui\imgui_widgets.cpp" />
+    <ClCompile Include="includes\OpenGL\Buffer.cpp" />
+    <ClCompile Include="includes\OpenGL\Camera.cpp" />
+    <ClCompile Include="includes\OpenGL\Controller.cpp" />
+    <ClCompile Include="includes\OpenGL\MeshGenerator.cpp" />
+    <ClCompile Include="includes\OpenGL\OpenGLDebug.cpp" />
+    <ClCompile Include="includes\OpenGL\RenderTarget.cpp" />
+    <ClCompile Include="includes\OpenGL\Texture.cpp" />
+    <ClCompile Include="includes\OpenGL\Texture2D.cpp" />
+    <ClCompile Include="includes\OpenGL\Texture3D.cpp" />
+    <ClCompile Include="includes\OpenGL\TextureCubeMap.cpp" />
+    <ClCompile Include="includes\OpenGL\TimeQuery.cpp" />
+    <ClCompile Include="includes\OpenGL\VertexArray.cpp" />
+    <ClCompile Include="includes\Utils\GuiUtils.cpp" />
+    <ClCompile Include="includes\Utils\StringUtils.cpp" />
+    <ClCompile Include="includes\Utils\Timer.cpp" />
+    <ClCompile Include="includes\Utils\VectorUtils.cpp" />
+    <ClCompile Include="includes\main.cpp" />
+    <ClCompile Include="includes\OpenGL\glad.c" />
+    <ClCompile Include="includes\Cloud\CloudGenerator.cpp" />
+    <ClCompile Include="includes\Cloud\CloudRenderer.cpp" />
+    <ClCompile Include="includes\Cloud\SceneRenderer.cpp" />
+    <ClCompile Include="includes\Cloud\SkyboxGenerator.cpp" />
+    <ClCompile Include="includes\OpenGL\OpenGLState.cpp" />
+    <ClCompile Include="includes\Cloud\SkyboxRenderer.cpp" />
+    <ClCompile Include="includes\OpenGL\ComputeShader.cpp" />
+    <ClCompile Include="includes\OpenGL\ShaderBase.cpp" />
+    <ClCompile Include="includes\OpenGL\Shader.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="includes\ImGui\GUI.h" />
+    <ClInclude Include="includes\ImGui\imconfig.h" />
+    <ClInclude Include="includes\ImGui\imgui.h" />
+    <ClInclude Include="includes\ImGui\imgui_impl_glfw.h" />
+    <ClInclude Include="includes\ImGui\imgui_impl_opengl3.h" />
+    <ClInclude Include="includes\ImGui\imgui_internal.h" />
+    <ClInclude Include="includes\ImGui\imstb_rectpack.h" />
+    <ClInclude Include="includes\ImGui\imstb_textedit.h" />
+    <ClInclude Include="includes\ImGui\imstb_truetype.h" />
+    <ClInclude Include="includes\OpenGL\EventHandeling\Event.h" />
+    <ClInclude Include="includes\OpenGL\EventHandeling\EventHandeler.h" />
+    <ClInclude Include="includes\OpenGL\Buffer.h" />
+    <ClInclude Include="includes\OpenGL\Camera.h" />
+    <ClInclude Include="includes\OpenGL\Controller.h" />
+    <ClInclude Include="includes\OpenGL\MeshGenerator.h" />
+    <ClInclude Include="includes\OpenGL\OpenGLDebug.h" />
+    <ClInclude Include="includes\OpenGL\RenderTarget.h" />
+    <ClInclude Include="includes\OpenGL\stb_image.h" />
+    <ClInclude Include="includes\OpenGL\Texture.h" />
+    <ClInclude Include="includes\OpenGL\Texture2D.h" />
+    <ClInclude Include="includes\OpenGL\Texture3D.h" />
+    <ClInclude Include="includes\OpenGL\TextureCubeMap.h" />
+    <ClInclude Include="includes\OpenGL\TimeQuery.h" />
+    <ClInclude Include="includes\OpenGL\VertexArray.h" />
+    <ClInclude Include="includes\Utils\GuiUtils.h" />
+    <ClInclude Include="includes\Utils\StringUtils.h" />
+    <ClInclude Include="includes\Utils\Timer.h" />
+    <ClInclude Include="includes\Utils\VectorUtils.h" />
+    <ClInclude Include="includes\Cloud\CloudGenerator.h" />
+    <ClInclude Include="includes\Cloud\CloudRenderer.h" />
+    <ClInclude Include="includes\Cloud\SkyboxGenerator.h" />
+    <ClInclude Include="includes\Cloud\SceneRenderer.h" />
+    <ClInclude Include="includes\OpenGL\OpenGLState.h" />
+    <ClInclude Include="includes\OpenGL\OpenGL.h" />
+    <ClInclude Include="includes\Cloud\SkyboxRenderer.h" />
+    <ClInclude Include="includes\OpenGL\ComputeShader.h" />
+    <ClInclude Include="includes\OpenGL\ShaderBase.h" />
+    <ClInclude Include="includes\OpenGL\Shader.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <None Include="shaders\skybox.vert" />
+    <None Include="shaders\skybox.frag" />
+  </ItemGroup>
+</Project>
