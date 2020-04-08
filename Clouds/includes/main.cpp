@@ -36,7 +36,15 @@
 #define WIDTH 1280
 #define HEIGHT 720
 
+/*
+	Renders a cool skybox I found
+	Project will mainly exist in here or in cloud
+	
+	ImGui is a nice simple gui https://github.com/ocornut/imgui
 
+	OpenGL is wrapped nicely in classes along with a GLFW controller to handel input and windows
+
+*/
 int main()
 {
 	Controller controller(WIDTH, HEIGHT, "OpenGL GUI", false);
