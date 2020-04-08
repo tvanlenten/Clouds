@@ -172,6 +172,7 @@
     <ClCompile Include="includes\OpenGL\TimeQuery.cpp" />
     <ClCompile Include="includes\OpenGL\VertexArray.cpp" />
     <ClCompile Include="includes\Utils\GuiUtils.cpp" />
+    <ClCompile Include="includes\Utils\RandomUtils.cpp" />
     <ClCompile Include="includes\Utils\StringUtils.cpp" />
     <ClCompile Include="includes\Utils\Timer.cpp" />
     <ClCompile Include="includes\Utils\VectorUtils.cpp" />
@@ -212,12 +213,15 @@
     <ClInclude Include="includes\OpenGL\TimeQuery.h" />
     <ClInclude Include="includes\OpenGL\VertexArray.h" />
     <ClInclude Include="includes\Utils\GuiUtils.h" />
+    <ClInclude Include="includes\Utils\RandomUtils.h" />
     <ClInclude Include="includes\Utils\StringUtils.h" />
     <ClInclude Include="includes\Utils\Timer.h" />
     <ClInclude Include="includes\Utils\VectorUtils.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="shaders\phong.frag" />
+    <None Include="shaders\phong.vert" />
     <None Include="shaders\skybox.frag" />
     <None Include="shaders\skybox.vert" />
   </ItemGroup>

@@ -48,7 +48,7 @@
 int main()
 {
 	Controller controller(WIDTH, HEIGHT, "OpenGL GUI", false);
-	auto camera = std::make_shared<Camera>(glm::ivec2(WIDTH, HEIGHT), glm::vec3(0.5, 0.0, -0.5), 90.0f, 0.01f, 20.0f, 0.1f, 0.75f);
+	auto camera = std::make_shared<Camera>(glm::ivec2(WIDTH, HEIGHT), glm::vec3(0.5, 0.0, -0.5), 90.0f, 0.01f, 20.0f, 0.1f, 1.75f);
 	controller.addMovementEventHandeler(camera);
 	controller.addMouseMovementEventHandeler(camera);
 	GUI gui(controller.getWindow());
@@ -63,7 +63,9 @@ int main()
 		"textures/lakeCubemap/posz.jpg", "textures/lakeCubemap/negz.jpg"
 	};
 	auto skyboxTextue = std::make_shared<TextureCubeMap>(faces, false, false);
+	
 	auto skyboxRenderer = std::make_shared<SkyboxRenderer>(skyboxTextue);
+	auto sceneRenderer = std::make_shared<SceneRenderer>();
 
 
 	controller.showMouse();
@@ -88,6 +90,7 @@ int main()
 
 		skyboxRenderer->Draw(screen, camera->ProjectionMatrix(), camera->ViewMatrix());
 
+		sceneRenderer->Draw(screen, skyboxTextue, camera->ProjectionViewMatrix(), camera->Position);
 
 		/*
 			ImGui test stuff
@@ -96,6 +99,9 @@ int main()
 		ImGui::Text(std::string("Camera x: " + std::to_string(camera->Position.x)).c_str());
 		ImGui::Text(std::string("Camera y: " + std::to_string(camera->Position.y)).c_str());
 		ImGui::Text(std::string("Camera z: " + std::to_string(camera->Position.z)).c_str());
+
+		sceneRenderer->Gui();
+
 		ImGui::End();
 
 		gui.End();

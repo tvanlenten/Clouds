@@ -34,6 +34,7 @@
     <ClCompile Include="includes\OpenGL\ComputeShader.cpp" />
     <ClCompile Include="includes\OpenGL\ShaderBase.cpp" />
     <ClCompile Include="includes\OpenGL\Shader.cpp" />
+    <ClCompile Include="includes\Utils\RandomUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="includes\ImGui\GUI.h" />
@@ -74,10 +75,13 @@
     <ClInclude Include="includes\OpenGL\ComputeShader.h" />
     <ClInclude Include="includes\OpenGL\ShaderBase.h" />
     <ClInclude Include="includes\OpenGL\Shader.h" />
+    <ClInclude Include="includes\Utils\RandomUtils.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="shaders\skybox.vert" />
     <None Include="shaders\skybox.frag" />
+    <None Include="shaders\phong.vert" />
+    <None Include="shaders\phong.frag" />
   </ItemGroup>
 </Project>
