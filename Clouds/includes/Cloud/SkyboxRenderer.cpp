@@ -6,6 +6,8 @@
 #include "../OpenGL/TextureCubeMap.h"
 #include "../OpenGL/MeshGenerator.h"
 #include "../OpenGL/OpenGLState.h"
+#include "../ImGui/imgui.h"
+#include "../OpenGL/Camera.h"
 
 SkyboxRenderer::SkyboxRenderer(std::shared_ptr<TextureCubeMap> skybox)
 {
@@ -24,8 +26,16 @@ SkyboxRenderer::~SkyboxRenderer()
 	
 }
 
-std::shared_ptr<RenderTarget> SkyboxRenderer::Draw(std::shared_ptr<RenderTarget> target, glm::mat4 projMatrix, glm::mat4 viewMatrix)
+void SkyboxRenderer::Gui()
 {
+
+}
+
+void SkyboxRenderer::Draw(std::shared_ptr<RenderTarget> target, std::shared_ptr<Camera> camera)
+{
+	auto projMatrix = camera->ProjectionMatrix();
+	auto viewMatrix = camera->ViewMatrix();
+
 	DisableDepthTest();
 
 	// skybox cube will not move with camera
@@ -44,7 +54,5 @@ std::shared_ptr<RenderTarget> SkyboxRenderer::Draw(std::shared_ptr<RenderTarget>
 	_skyboxShader->End();
 
 	DepthTest();
-	
-	return target;
 }
 

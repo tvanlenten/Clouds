@@ -8,10 +8,13 @@
 #include "../OpenGL/MeshGenerator.h"
 #include "../OpenGL/TextureCubeMap.h"
 #include "../OpenGL/OpenGLState.h"
+#include "../OpenGL/Camera.h"
+#include "../OpenGL/Texture.h"
 
 #include "../ImGui/imgui.h"
 
 #include "../Utils/RandomUtils.h"
+#include <iostream>
 
 
 SceneRenderer::SceneRenderer()
@@ -22,20 +25,19 @@ SceneRenderer::SceneRenderer()
 	_phongShader->Set("skybox", 0);
 	_phongShader->End();
 
-	_testObject = generateBox(glm::vec3(-1.0), glm::vec3(1.0));//generateArrow(0.04, 0.01, 0.2, 0.5, 16);
-	_lightPos = glm::vec3(-1.0, 1.3, 0.0);
 
-	_objectRot = std::vector<glm::vec3>();
-	_objectPos = std::vector<glm::vec3>();
-
-	Utils::SeedRandom();
-
-	for (int i = 0; i < 32; ++i)
+	_terrainScale = glm::vec3(32.0, 4.0, 32.0);
+	// create terrain
+	int hWidth, hHeight;
+	float* heightMapData = Texture::loadHeightMap("textures/heightmap2.png", &hWidth, &hHeight);
+	if (heightMapData != nullptr)
 	{
-		_objectPos.push_back(Utils::Random(glm::vec3(-10.0), glm::vec3(10.0)));
-		_objectRot.push_back(Utils::Random(glm::vec3(-1.0), glm::vec3(1.0)));
-		_objectScale.push_back(Utils::Random(0.1,2.0));
-		_objectCol.push_back(glm::vec4(Utils::Random(glm::vec3(0.0), glm::vec3(1.0)), 1.0));
+		_terrain = generateTerrain(heightMapData, glm::ivec2(hWidth, hHeight), _terrainScale);
+		Texture::freeImage(heightMapData);
+	}
+	else
+	{
+		_terrain = generateBox(glm::vec3(0.0), glm::vec3(1.0));
 	}
 }
 
@@ -50,37 +52,25 @@ void SceneRenderer::Gui()
 
 void SceneRenderer::Update()
 {
-	for (int i = 0; i < _objectPos.size(); ++i)
-	{
-		
-	}
+
 }
 
-void SceneRenderer::Draw(std::shared_ptr<RenderTarget> target, std::shared_ptr<TextureCubeMap> skyboxTexture, glm::mat4 projectionViewMatrix, glm::vec3 cameraPosition)
+void SceneRenderer::Draw(std::shared_ptr<RenderTarget> target, std::shared_ptr<TextureCubeMap> skyboxTexture, std::shared_ptr<Camera> camera)
 {
 	CullFace();
 
 	_phongShader->Start();
 
-	_phongShader->Set("projView", projectionViewMatrix);
+	auto model = glm::mat4(1.0);
+	model = glm::translate(model, glm::vec3(-16.0, -4.0, -16.0));
+	_phongShader->Set("model", model);
+	_phongShader->Set("normalMatrix", GetNormalMatrix(model));
+	_phongShader->Set("projView", camera->ProjectionViewMatrix());
 	_phongShader->Set("lightPos", _lightPos);
-	_phongShader->Set("cameraPos", cameraPosition);
+	_phongShader->Set("cameraPos", camera->Position);
+	_phongShader->Set("color", glm::vec4(0.0, 1.0, 0.0, 1.0));
 
-	for (int i = 0; i < _objectPos.size(); ++i)
-	{
-		auto model = glm::mat4(1.0);
-		model = glm::scale(model, glm::vec3(_objectScale[i]));
-		model = glm::rotate(model, 1.0f, _objectRot[i]);
-		model = glm::translate(model, _objectPos[i]);
-
-		_phongShader->Set("model", model);
-		_phongShader->Set("normalMatrix", GetNormalMatrix(model));
-		_phongShader->Set("color", _objectCol[i]);
-
-		skyboxTexture->use(0);
-		_testObject->draw();
-	}
-
+	_terrain->draw();
 	_phongShader->End();
 
 

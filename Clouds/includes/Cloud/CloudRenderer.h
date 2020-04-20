@@ -4,19 +4,20 @@
 
 
 class RenderTarget;
-class VertexArray;
 class Shader;
+class Camera;
+class Texture3D;
 
 
 class CloudRenderer
 {
 public:
-	CloudRenderer();
+	CloudRenderer(glm::ivec2 cloudPassDims, std::shared_ptr<Texture3D> cloudVolume);
 	~CloudRenderer();
 
-	std::shared_ptr<RenderTarget> Draw(std::shared_ptr<RenderTarget> target, glm::mat4 invProjViewMatrix);
+	void Draw(std::shared_ptr<RenderTarget> target, std::shared_ptr<Camera> camera);
 
 private:
-	std::shared_ptr<VertexArray> _screenQuad;
 	std::shared_ptr<Shader> _cloudShader;
+	std::shared_ptr<Texture3D> _cloudVolume;
 };

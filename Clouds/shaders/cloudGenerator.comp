@@ -1,0 +1,35 @@
+#version 430
+layout (local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
+layout (r32f, binding = 0) uniform image3D volume;
+
+uniform ivec3 volumeDims;
+
+float hash( float n )
+{
+    return fract(sin(n)*43758.5453);
+}
+
+vec3 hash3( float n )
+{
+    return fract(sin(vec3(n,n+1.0,n+2.0))*vec3(43758.5453123,22578.1459123,19642.3490423));
+}
+
+float sdSphere(vec3 p, float r)
+{
+	return length(p) - r;
+}
+
+
+void main()
+{
+	ivec3 voxelCoord = ivec3(gl_GlobalInvocationID.xyz);
+	vec3 uvw = vec3(voxelCoord) / vec3(volumeDims);
+
+	float density = 0.0;
+	for(int i = 0; i < 5; ++i) // 5 random spheres just to put something in the volume for now
+	{
+		density = max(density, -sdSphere(uvw - hash3(float(i)), hash(float(i)*22.0 + 342.0)*0.2));
+	}
+
+	imageStore(volume, voxelCoord, vec4(density, 0.0, 0.0, 0.0));
+}

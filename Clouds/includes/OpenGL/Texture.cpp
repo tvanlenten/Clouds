@@ -14,7 +14,33 @@ unsigned char* Texture::loadImage(std::string filename, int* width, int* height,
 	return image;
 }
 
-void Texture::freeImage(unsigned char* image)
+float* Texture::loadHeightMap(std::string filename, int* width, int* height, bool flipVertically)
+{
+	stbi_set_flip_vertically_on_load(flipVertically);
+	int numChannels;
+	unsigned char* image = stbi_load(filename.c_str(), width, height, &numChannels, 1);
+	if (!image)
+	{
+		printf("Error: Could not load image at: %s\n", filename.c_str());
+		return nullptr;
+	}
+
+	// convert 8 bit int to float
+	float* heightMap = new float[(*width) * (*height)];
+	for (int y = 0; y < *height; ++y)
+	{
+		for (int x = 0; x < *width; ++x)
+		{
+			int index = x + (y * (*width));
+			heightMap[index] = float(image[index]) / 255.0f;
+		}
+	}
+	freeImage(image);
+
+	return heightMap;
+}
+
+void Texture::freeImage(void* image)
 {
 	stbi_image_free(image);
 }

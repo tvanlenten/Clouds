@@ -4,6 +4,12 @@
 #include <glad/glad.h>
 #include <vector>
 
+
+/*
+	Not very efficeint! Could use a lot of work
+	Element Buffers should also be used!
+*/
+
 class VertexArray;
 class Buffer;
 
@@ -80,6 +86,15 @@ std::shared_ptr<VertexArray> generateCone(glm::vec3 position, float radius, floa
 */
 std::shared_ptr<VertexArray> generateArrow(float coneRadius, float cylinderRadius, float percentCone, float height, unsigned int numSlices);
 
+
+/*
+	attachments
+	0 - position
+	1 - normal
+	2 - uv
+*/
+std::shared_ptr<VertexArray> generateTerrain(float* heightArray, glm::ivec2 dims, glm::vec3 scale);
+
 /*
 	creates new scaled array of verts
 	DELETE AFTER USE!
@@ -97,7 +112,10 @@ void addTri(std::vector<glm::vec3>* positions, std::vector<glm::vec3>* normals, 
 
 void addQuad(std::vector<glm::vec3>* positions, std::vector<glm::vec3>* normals, std::vector<glm::vec2>* texCoords, glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 d, glm::vec3 norm);
 
-
+void addFullQuad(std::vector<glm::vec3>* positions, std::vector<glm::vec3>* normals, std::vector<glm::vec2>* texCoords,
+	const glm::vec3& aPos, const glm::vec3& bPos, const glm::vec3& cPos, const glm::vec3& dPos,
+	const glm::vec3& aNorm, const glm::vec3& bNorm, const glm::vec3& cNorm, const glm::vec3& dNorm,
+	const glm::vec2& aUV, const glm::vec2& bUV, const glm::vec2& cUV, const glm::vec2& dUV);
 
 
 class BoundingBoxArray

@@ -41,6 +41,33 @@ TextureCubeMap::TextureCubeMap(std::string faces[6], bool mipmapped, bool flipVe
 	unbind(); 
 }
 
+TextureCubeMap::TextureCubeMap(glm::ivec2 dims, GLenum internalFormat, GLenum format, GLenum dataType, bool mipmapped)
+{
+	_dimensions = dims;
+	_dataType = dataType;
+	_mipmapped = mipmapped;
+	_type = GL_TEXTURE_CUBE_MAP;
+	_internalFormat = internalFormat;
+	_format = format;
+	glGenTextures(1, &_id); glCheckError();
+
+	bind();
+	for (GLuint i = 0; i < 6; i++) {
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, _internalFormat, _dimensions.x, _dimensions.y, 0, _format, _dataType, nullptr); glCheckError();
+	}
+	if (_mipmapped)
+	{
+		glGenerateMipmap(_type); glCheckError();
+		setFilter(GL_LINEAR_MIPMAP_LINEAR);
+	}
+	else
+	{
+		setFilter(GL_LINEAR);
+	}
+	setWrapping(GL_CLAMP_TO_EDGE);
+	unbind();
+}
+
 TextureCubeMap::~TextureCubeMap()
 {
 	if (_id) { glDeleteTextures(1, &_id); glCheckError(); }

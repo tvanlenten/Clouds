@@ -172,6 +172,7 @@
     <ClCompile Include="includes\OpenGL\TimeQuery.cpp" />
     <ClCompile Include="includes\OpenGL\VertexArray.cpp" />
     <ClCompile Include="includes\Utils\GuiUtils.cpp" />
+    <ClCompile Include="includes\Utils\LinearInterpolation.cpp" />
     <ClCompile Include="includes\Utils\RandomUtils.cpp" />
     <ClCompile Include="includes\Utils\StringUtils.cpp" />
     <ClCompile Include="includes\Utils\Timer.cpp" />
@@ -212,6 +213,7 @@
     <ClInclude Include="includes\OpenGL\TextureCubeMap.h" />
     <ClInclude Include="includes\OpenGL\TimeQuery.h" />
     <ClInclude Include="includes\OpenGL\VertexArray.h" />
+    <ClInclude Include="includes\Utils\LinearInterpolation.h" />
     <ClInclude Include="includes\Utils\GuiUtils.h" />
     <ClInclude Include="includes\Utils\RandomUtils.h" />
     <ClInclude Include="includes\Utils\StringUtils.h" />
@@ -220,10 +222,14 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="shaders\cloudGenerator.comp" />
+    <None Include="shaders\cloudRenderer.frag" />
     <None Include="shaders\phong.frag" />
     <None Include="shaders\phong.vert" />
+    <None Include="shaders\screen.vert" />
     <None Include="shaders\skybox.frag" />
     <None Include="shaders\skybox.vert" />
+    <None Include="shaders\skyboxGenerator.comp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

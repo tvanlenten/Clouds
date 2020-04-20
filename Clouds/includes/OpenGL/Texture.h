@@ -23,12 +23,14 @@ public:
 	/*
 	loads an image from the stbi library
 	*/
-	unsigned char* loadImage(std::string filename, int* width, int* height, int* numChannels, bool flipVertically = true);
+	static unsigned char* loadImage(std::string filename, int* width, int* height, int* numChannels, bool flipVertically = true);
+
+	static float* loadHeightMap(std::string filename, int* width, int* height, bool flipVertically = true);
 
 	/*
 	free the image data after using!
 	*/
-	void freeImage(unsigned char* image);
+	static void freeImage(void* image);
 
 	void clear(glm::vec4 color);
 	void clear(glm::uvec4 value);

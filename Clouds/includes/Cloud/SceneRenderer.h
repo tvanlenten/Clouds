@@ -7,6 +7,7 @@ class RenderTarget;
 class VertexArray;
 class Shader;
 class TextureCubeMap;
+class Camera;
 
 
 class SceneRenderer
@@ -19,16 +20,12 @@ public:
 
 	void Update();
 
-	void Draw(std::shared_ptr<RenderTarget> target, std::shared_ptr<TextureCubeMap> skyboxTexture, glm::mat4 projectionViewMatrix, glm::vec3 cameraPosition);
+	void Draw(std::shared_ptr<RenderTarget> target, std::shared_ptr<TextureCubeMap> skyboxTexture, std::shared_ptr<Camera> camera);
 
 private:
 	std::shared_ptr<Shader> _phongShader;
-	std::shared_ptr<VertexArray> _testObject;
-
-	std::vector<glm::vec3> _objectRot;
-	std::vector<glm::vec3> _objectPos;
-	std::vector<float> _objectScale;
-	std::vector<glm::vec4> _objectCol;
+	std::shared_ptr<VertexArray> _terrain;
+	glm::vec3 _terrainScale;
 
 	glm::vec3 _lightPos;
 

@@ -3,6 +3,7 @@
 #include "VertexArray.h"
 #include <iostream>
 #include <string>
+#include "../Utils/LinearInterpolation.h"
 
 #define _PI_ 3.14159265359
 
@@ -333,6 +334,68 @@ std::shared_ptr<VertexArray> generateArrow(float coneRadius, float cylinderRadiu
 	return vao;
 }
 
+std::shared_ptr<VertexArray> generateTerrain(float* heightArray, glm::ivec2 dims, glm::vec3 scale)
+{
+	std::vector<glm::vec3> posVerts = std::vector<glm::vec3>();
+	std::vector<glm::vec3> normalVerts = std::vector<glm::vec3>();
+	std::vector<glm::vec2> uvVerts = std::vector<glm::vec2>();
+
+
+	// process all terrain quads
+	for (int y = 0; y < dims.y - 1; ++y)
+	{
+		for (int x = 0; x < dims.x - 1; ++x)
+		{
+			//calc coords
+			glm::ivec2 a = glm::vec2(x, y);
+			glm::ivec2 b = glm::vec2(x + 1, y);
+			glm::ivec2 c = glm::vec2(x, y + 1);
+			glm::ivec2 d = glm::vec2(x + 1, y + 1);
+
+			//calc uv values
+			glm::vec2 aUV = glm::vec2(a) / glm::vec2(dims);
+			glm::vec2 bUV = glm::vec2(b) / glm::vec2(dims);
+			glm::vec2 cUV = glm::vec2(c) / glm::vec2(dims);
+			glm::vec2 dUV = glm::vec2(d) / glm::vec2(dims);
+
+			//calc positions
+			glm::vec3 aPos = glm::vec3(aUV.x, heightArray[a.x + (a.y * dims.x)], aUV.y) * scale;
+			glm::vec3 bPos = glm::vec3(bUV.x, heightArray[b.x + (b.y * dims.x)], bUV.y) * scale;
+			glm::vec3 cPos = glm::vec3(cUV.x, heightArray[c.x + (c.y * dims.x)], cUV.y) * scale;
+			glm::vec3 dPos = glm::vec3(dUV.x, heightArray[d.x + (d.y * dims.x)], dUV.y) * scale;
+
+			//calc normals
+			glm::vec3 aNorm = Utils::HeightMapNormal(heightArray, dims, a, scale);
+			glm::vec3 bNorm = Utils::HeightMapNormal(heightArray, dims, b, scale);
+			glm::vec3 cNorm = Utils::HeightMapNormal(heightArray, dims, c, scale);
+			glm::vec3 dNorm = Utils::HeightMapNormal(heightArray, dims, d, scale);
+
+			//process quad
+			addFullQuad(&posVerts, &normalVerts, &uvVerts, 
+				aPos, bPos, cPos, dPos,
+				aNorm, bNorm, cNorm, dNorm,
+				aUV, bUV, cUV, dUV);
+		}
+	}
+
+	std::shared_ptr<VertexArray> vao = std::make_shared<VertexArray>();
+	vao->bind();
+	vao->setVertexSize(posVerts.size());
+
+	std::shared_ptr<Buffer> posData = std::make_shared<Buffer>(GL_ARRAY_BUFFER, posVerts.size() * sizeof(glm::vec3), posVerts.data());
+	vao->attach(posData, AttachType::VEC3);
+
+	std::shared_ptr<Buffer> normData = std::make_shared<Buffer>(GL_ARRAY_BUFFER, normalVerts.size() * sizeof(glm::vec3), normalVerts.data());
+	vao->attach(normData, AttachType::VEC3);
+
+	std::shared_ptr<Buffer> uvData = std::make_shared<Buffer>(GL_ARRAY_BUFFER, uvVerts.size() * sizeof(glm::vec2), uvVerts.data());
+	vao->attach(uvData, AttachType::VEC2);
+
+	vao->unbind();
+
+	return vao;
+}
+
 glm::vec2* scaleVerts2D(glm::vec2* verts, unsigned int numVerts, glm::vec2 scale, glm::vec2 offset)
 {
 	glm::vec2* newVerts = new glm::vec2[numVerts];
@@ -407,6 +470,32 @@ void addQuad(std::vector<glm::vec3>* positions, std::vector<glm::vec3>* normals,
 	}
 }
 
+void addFullQuad(std::vector<glm::vec3>* positions, std::vector<glm::vec3>* normals, std::vector<glm::vec2>* texCoords,
+	const glm::vec3& aPos, const glm::vec3& bPos, const glm::vec3& cPos, const glm::vec3& dPos,
+	const glm::vec3& aNorm, const glm::vec3& bNorm, const glm::vec3& cNorm, const glm::vec3& dNorm,
+	const glm::vec2& aUV, const glm::vec2& bUV, const glm::vec2& cUV, const glm::vec2& dUV)
+{
+	positions->push_back(aPos);
+	positions->push_back(dPos);
+	positions->push_back(bPos);
+	positions->push_back(aPos);
+	positions->push_back(cPos);
+	positions->push_back(dPos);
+
+	normals->push_back(aNorm);
+	normals->push_back(dNorm);
+	normals->push_back(bNorm);
+	normals->push_back(aNorm);
+	normals->push_back(cNorm);
+	normals->push_back(dNorm);
+
+	texCoords->push_back(aUV);
+	texCoords->push_back(dUV);
+	texCoords->push_back(bUV);
+	texCoords->push_back(aUV);
+	texCoords->push_back(cUV);
+	texCoords->push_back(dUV);
+}
 
 
 BoundingBoxArray::BoundingBoxArray(int maxBoundingBoxes)
