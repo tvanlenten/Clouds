@@ -89,5 +89,6 @@
     <None Include="shaders\cloudRenderer.frag" />
     <None Include="shaders\screen.vert" />
     <None Include="shaders\cloudGenerator.comp" />
+    <None Include="shaders\debugCloudTex.frag" />
   </ItemGroup>
 </Project>

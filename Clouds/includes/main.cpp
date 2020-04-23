@@ -53,7 +53,7 @@ int main()
 
 	// create generators
 	auto skyboxGenerator = std::make_shared<SkyboxGenerator>(glm::ivec2(512, 512));
-	auto cloudGenerator = std::make_shared<CloudGenerator>(glm::ivec3(128));
+	auto cloudGenerator = std::make_shared<CloudGenerator>(glm::ivec3(128), glm::i32(2));
 
 	// generate textures
 	auto skyboxTexture = skyboxGenerator->Generate(glm::vec3(2.0, 1.0, 0.0));
@@ -70,6 +70,11 @@ int main()
 	target->addColorAttachment();
 	target->addDepthAttachment();
 	target->bindAttachments();
+	
+	//DEBUG VALUES FOR TEXTURE
+	auto texDebugShader = std::make_shared<Shader>("shaders/screen.vert", "shaders/debugCloudTex.frag", nullptr, false);
+	float debuggingTex = 1.0f;
+	float slice = 0.5;
 
 	// main draw loop
 	controller.showMouse();
@@ -102,6 +107,16 @@ int main()
 
 		// draw clouds
 		cloudRenderer->Draw(target, camera);
+
+		// draw debug clound texture to screen quad
+		if (debuggingTex == 1.0f) {			
+			texDebugShader->Start();
+			texDebugShader->Set("cloudVolume", 0);
+			texDebugShader->Set("slice", slice);
+
+			target->renderToTarget(); // draw screen quad
+			texDebugShader->End();
+		}
 		
 		// clear the screen before blitting
 		screen->bind();
@@ -117,6 +132,11 @@ int main()
 		ImGui::Text(std::string("Camera Front z: " + std::to_string(camera->Front.z)).c_str());
 		sceneRenderer->Gui();
 		skyboxRenderer->Gui();
+
+		// Debug Tex
+		ImGui::DragFloat("slice", &slice, 0.001f, 0.0f, 1.0f);
+		ImGui::DragFloat("Debug", &debuggingTex, 1.0f, 0.0f, 1.0f);
+
 		ImGui::End();
 
 		// swap buffers and end GUI
