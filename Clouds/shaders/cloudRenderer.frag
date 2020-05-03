@@ -13,6 +13,7 @@ uniform sampler2D prevDepth;
 
 float min3(vec3 v) { return min(min(v.x, v.y), v.z); }
 float max3(vec3 v) { return max(max(v.x, v.y), v.z); }
+float remap(float x, float a, float b, float c, float d) { return (((x - a) / (b - a)) * (d - c)) + c; }
 void getRay(inout vec3 ro, inout vec3 rd)
 {
 	vec2 uvPlane = uv * 2.0 - 1.0;
@@ -44,7 +45,17 @@ float castRay(vec3 ro, vec3 rd, float tMin, float tMax, float stepSize, float cl
 	{
 		if(density >= 1.0)
 			break;
-		density += texture(cloudVolume, (ro + rd*t)*scale).r * cloudDensity;
+		// Create cloud effects!
+		float perlinWorley = texture(cloudVolume, (ro + rd*t)*scale).r;
+		// worley fbms with different frequencies
+		vec3 worley = texture(cloudVolume, (ro + rd*t)*scale).gba;
+		float wfbm = worley.x * .625 +
+					worley.y * .125 +
+					worley.z * .25; 
+		// cloud shape modeled after the GPU Pro 7 chapter
+		float cloud = remap(perlinWorley, wfbm - 1., 1., 0., 1.);
+		cloud = remap(cloud, .85, 1., 0., 1.); // fake cloud coverage
+		density += cloud * cloudDensity;
 		t += max(t*stepSize*0.5, stepSize);
 	}
 

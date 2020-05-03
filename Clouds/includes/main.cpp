@@ -53,7 +53,7 @@ int main()
 
 	// create generators
 	auto skyboxGenerator = std::make_shared<SkyboxGenerator>(glm::ivec2(512, 512));
-	auto cloudGenerator = std::make_shared<CloudGenerator>(glm::ivec3(128), glm::i32(2));
+	auto cloudGenerator = std::make_shared<CloudGenerator>(glm::ivec3(128), glm::f32(4.0));
 
 	// generate textures
 	auto skyboxTexture = skyboxGenerator->Generate(glm::vec3(2.0, 1.0, 0.0));
@@ -73,7 +73,8 @@ int main()
 	
 	//DEBUG VALUES FOR TEXTURE
 	auto texDebugShader = std::make_shared<Shader>("shaders/screen.vert", "shaders/debugCloudTex.frag", nullptr, false);
-	float debuggingTex = 1.0f;
+	bool debuggingTex = false;
+	static int channel = 0;
 	float slice = 0.5;
 
 	// main draw loop
@@ -109,10 +110,11 @@ int main()
 		cloudRenderer->Draw(target, camera);
 
 		// draw debug clound texture to screen quad
-		if (debuggingTex == 1.0f) {			
+		if (debuggingTex) {			
 			texDebugShader->Start();
 			texDebugShader->Set("cloudVolume", 0);
 			texDebugShader->Set("slice", slice);
+			texDebugShader->Set("channel", channel);
 
 			target->renderToTarget(); // draw screen quad
 			texDebugShader->End();
@@ -134,8 +136,13 @@ int main()
 		skyboxRenderer->Gui();
 
 		// Debug Tex
+		ImGui::RadioButton("R", &channel, 0); ImGui::SameLine();
+		ImGui::RadioButton("G", &channel, 1); ImGui::SameLine();
+		ImGui::RadioButton("B", &channel, 2); ImGui::SameLine();
+		ImGui::RadioButton("A", &channel, 3); ImGui::SameLine();
+		ImGui::RadioButton("CLOUD", &channel, 4);
 		ImGui::DragFloat("slice", &slice, 0.001f, 0.0f, 1.0f);
-		ImGui::DragFloat("Debug", &debuggingTex, 1.0f, 0.0f, 1.0f);
+		ImGui::Checkbox("Debug", &debuggingTex);
 
 		ImGui::End();
 
