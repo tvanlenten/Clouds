@@ -11,7 +11,6 @@
 #include "OpenGL\Buffer.h"
 
 #include "Utils/StringUtils.h"
-#include "Utils/Timer.h"
 
 #include "ImGui\GUI.h"
 
@@ -50,14 +49,16 @@ int main()
 	controller.addMouseMovementEventHandeler(camera);
 	GUI gui(controller.getWindow());
 	auto screen = std::make_shared<RenderTarget>(glm::ivec2(WIDTH, HEIGHT));
-	
+
+
 	// create generators
 	auto skyboxGenerator = std::make_shared<SkyboxGenerator>(glm::ivec2(512, 512));
-	auto cloudGenerator = std::make_shared<CloudGenerator>(glm::ivec3(256), 64);
+	auto cloudGenerator = std::make_shared<CloudGenerator>(glm::ivec3(128), glm::f32(4.0));
 
 	// generate textures
 	auto skyboxTexture = skyboxGenerator->Generate(glm::vec3(2.0, 1.0, 0.0));
 	auto cloudVolume = cloudGenerator->Generate();
+
 
 	// create renderers
 	auto skyboxRenderer = std::make_shared<SkyboxRenderer>(skyboxTexture);
@@ -73,8 +74,8 @@ int main()
 	//DEBUG VALUES FOR TEXTURE
 	auto texDebugShader = std::make_shared<Shader>("shaders/screen.vert", "shaders/debugCloudTex.frag", nullptr, false);
 	bool debuggingTex = false;
+	static int channel = 0;
 	float slice = 0.5;
-	int channel = 0;
 
 	// main draw loop
 	controller.showMouse();
@@ -114,7 +115,6 @@ int main()
 			texDebugShader->Set("cloudVolume", 0);
 			texDebugShader->Set("slice", slice);
 			texDebugShader->Set("channel", channel);
-			cloudVolume->use(0);
 
 			target->renderToTarget(); // draw screen quad
 			texDebugShader->End();
@@ -134,12 +134,15 @@ int main()
 		ImGui::Text(std::string("Camera Front z: " + std::to_string(camera->Front.z)).c_str());
 		sceneRenderer->Gui();
 		skyboxRenderer->Gui();
-		cloudRenderer->Gui();
 
 		// Debug Tex
+		ImGui::RadioButton("R", &channel, 0); ImGui::SameLine();
+		ImGui::RadioButton("G", &channel, 1); ImGui::SameLine();
+		ImGui::RadioButton("B", &channel, 2); ImGui::SameLine();
+		ImGui::RadioButton("A", &channel, 3); ImGui::SameLine();
+		ImGui::RadioButton("CLOUD", &channel, 4);
 		ImGui::DragFloat("slice", &slice, 0.001f, 0.0f, 1.0f);
 		ImGui::Checkbox("Debug", &debuggingTex);
-		ImGui::DragInt("channel", &channel, 0.03f, 0, 3);
 
 		ImGui::End();
 

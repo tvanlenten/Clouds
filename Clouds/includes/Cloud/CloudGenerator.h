@@ -9,7 +9,7 @@ class Texture3D;
 class CloudGenerator
 {
 public:
-	CloudGenerator(glm::ivec3 dims, int numCellDivisions);
+	CloudGenerator(glm::ivec3 dims, glm::f32 freq);
 	~CloudGenerator();
 
 	std::shared_ptr<Texture3D> Generate();
@@ -19,9 +19,7 @@ private:
 	std::shared_ptr<Texture3D> _cloudVolume;
 	glm::ivec3 _cloudVolumeDims;
 	glm::ivec3 _groupDims;
-	int _numCellDivisions;
+	glm::f32 _frequency;
 
-	void GenerateInternal(int numCellDivisions, int channel);
-
-	std::shared_ptr<Buffer> CreateWorleyNoisePointBuffer(int numCellsPerAxis);
+	//std::shared_ptr<Buffer> CreateWorleyNoisePointBuffer(glm::i32 numCellsPerAxis);
 };
