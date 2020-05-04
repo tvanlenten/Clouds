@@ -4,7 +4,7 @@ namespace Utils
 {
 	Timer::Timer()
 	{
-		_deltaTime;
+		_deltaTime = 0;
 	}
 
 	Timer::~Timer()

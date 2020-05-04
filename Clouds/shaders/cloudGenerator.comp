@@ -1,6 +1,6 @@
 #version 430
 layout (local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
-layout (r32f, binding = 0) uniform image3D volume;
+layout (rgba32f, binding = 0) uniform image3D volume;
 layout (std430, binding = 2) buffer worleyNoisePointBuffer
 {
     vec4 worleyPoints[];
@@ -9,21 +9,7 @@ layout (std430, binding = 2) buffer worleyNoisePointBuffer
 uniform ivec3 volumeDims;
 uniform int numCellsPerAxis;
 uniform bool invert;
-
-//float hash( float n )
-//{
-//    return fract(sin(n)*43758.5453);
-//}
-//
-//vec3 hash3( float n )
-//{
-//    return fract(sin(vec3(n,n+1.0,n+2.0))*vec3(43758.5453123,22578.1459123,19642.3490423));
-//}
-//
-//float sdSphere(vec3 p, float r)
-//{
-//	return length(p) - r;
-//}
+uniform int channel;
 
 int ivecMin3 (ivec3 v) {
   return min (min (v.x, v.y), v.z);
@@ -67,7 +53,8 @@ float worley(int numCells, vec3 samplePos)
 			int adjCellIndex = wrappedCellID.x + numCells * (wrappedCellID.y + wrappedCellID.z * numCells);
 			vec3 wrappedPoint = worleyPoints[adjCellIndex].xyz;
 	
-			for (int wrapOffsetIndex = 0; wrapOffsetIndex < 27; wrapOffsetIndex++) {
+			for (int wrapOffsetIndex = 0; wrapOffsetIndex < 27; wrapOffsetIndex++)
+			{
 				vec3 sampleOffset = samplePos - (wrappedPoint + cellAdjacentOffsets[wrapOffsetIndex]);
 				minSqrDst = min(minSqrDst, dot(sampleOffset, sampleOffset));
 			}
@@ -84,15 +71,43 @@ float worley(int numCells, vec3 samplePos)
 	return sqrt(minSqrDst);
 }
 
+const mat3 mm= mat3( 0.00,  0.80,  0.60,
+                    -0.80,  0.36, -0.48,
+                    -0.60, -0.48,  0.64 );
+
 void main()
 {
 	ivec3 voxelCoord = ivec3(gl_GlobalInvocationID.xyz);
 	vec3 uvw = vec3(voxelCoord) / vec3(volumeDims);
+
+	vec4 prevChannels = imageLoad(volume, voxelCoord);
 
 	float density = worley(numCellsPerAxis, uvw);
 	if (invert)
 	{
 		density = 1.0 - density;
 	}
-	imageStore(volume, voxelCoord, vec4(map(density, 0.7, 1.0, 0.0, 1.0), 0.0, 0.0, 0.0));
+
+	float cellSize = 1.0 / numCellsPerAxis;
+
+	density = smoothstep(1.0 - cellSize, 1.0, density);
+
+	vec4 res;
+	switch(channel)
+	{
+		case 0:
+			res = vec4(density, prevChannels.gba);
+			break;
+		case 1:
+			res = vec4(prevChannels.r, density, prevChannels.ba);
+			break;
+		case 2:
+			res = vec4(prevChannels.rg, density, prevChannels.b);
+			break;
+		case 3:
+			res = vec4(prevChannels.rgb, density);
+			break;
+	}
+
+	imageStore(volume, voxelCoord, res);
 }

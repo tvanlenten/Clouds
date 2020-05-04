@@ -25,7 +25,7 @@ SceneRenderer::SceneRenderer()
 	_phongShader->Set("skybox", 0);
 	_phongShader->End();
 
-
+	
 	_terrainScale = glm::vec3(32.0, 4.0, 32.0);
 	// create terrain
 	int hWidth, hHeight;
@@ -39,6 +39,8 @@ SceneRenderer::SceneRenderer()
 	{
 		_terrain = generateBox(glm::vec3(0.0), glm::vec3(1.0));
 	}
+	
+	//_terrain = generateBox(glm::vec3(-10.0,-1.0,-10.0), glm::vec3(10.0, 0.0, 10.0));
 }
 
 SceneRenderer::~SceneRenderer()

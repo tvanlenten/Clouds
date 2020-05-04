@@ -13,10 +13,12 @@ uniform samplerCube skybox;
 
 void main()
 {
-	vec3 albedoCol = mix(vec3(0.164, 0.109, 0.074), vec3(0.086, 0.192, 0.094), smoothstep(0.3, 0.6, Normal.y));
+
+	vec3 flatCol = (Position.y > -3.0)? vec3(0.113, 0.756, 0.043) : vec3(0.031, 0.219, 0.666);
+	vec3 albedoCol = mix(vec3(0.164, 0.109, 0.074), flatCol, smoothstep(0.8, 1.0, Normal.y));
 
 
-	vec3 lightDir = normalize(lightPos - Position);
+	vec3 lightDir = normalize(vec3(0.3,1.2,0.1));
 	vec3 viewDir = normalize(-Position);
     vec3 refDir = reflect(-lightDir, Normal);
 
@@ -29,7 +31,7 @@ void main()
 	float spec = pow(max(dot(Normal, halfwayDir), 0.0), 32.0);
 
 	vec3 specular = vec3(0.1) * spec;
-    vec3 ambient = 0.35 * albedoCol;
+    vec3 ambient = 0.1 * albedoCol;
     vec3 diffuse = diff * albedoCol;
         
     vec3 col = ambient + diffuse + specular;

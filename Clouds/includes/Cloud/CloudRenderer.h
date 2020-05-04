@@ -17,7 +17,11 @@ public:
 
 	void Draw(std::shared_ptr<RenderTarget> target, std::shared_ptr<Camera> camera);
 
+	void Gui();
+
 private:
 	std::shared_ptr<Shader> _cloudShader;
 	std::shared_ptr<Texture3D> _cloudVolume;
+	std::shared_ptr<RenderTarget> _cloudTarget;
+	glm::vec3 _lightDir;
 };

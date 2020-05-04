@@ -46,10 +46,10 @@ glm::vec3 Utils::HeightMapNormal(float* tex, glm::ivec2 texDims, glm::ivec2 coor
 	glm::vec2 yMinXZ = glm::vec2(yMinCoord) / glm::vec2(texDims);
 	glm::vec2 yMaxXZ = glm::vec2(yMaxCoord) / glm::vec2(texDims);
 
-	glm::vec3 xMin = glm::vec3(xMinXZ.x, xMinY, xMinXZ.y);
-	glm::vec3 xMax = glm::vec3(xMaxXZ.x, xMaxY, xMaxXZ.y);
-	glm::vec3 yMin = glm::vec3(yMinXZ.x, yMinY, yMinXZ.y);
-	glm::vec3 yMax = glm::vec3(yMaxXZ.x, yMaxY, yMaxXZ.y);
+	glm::vec3 xMin = glm::vec3(xMinXZ.x, xMinY, xMinXZ.y) * scale;
+	glm::vec3 xMax = glm::vec3(xMaxXZ.x, xMaxY, xMaxXZ.y) * scale;
+	glm::vec3 yMin = glm::vec3(yMinXZ.x, yMinY, yMinXZ.y) * scale;
+	glm::vec3 yMax = glm::vec3(yMaxXZ.x, yMaxY, yMaxXZ.y) * scale;
 
 	glm::vec3 norm = glm::cross(xMax - xMin, yMax - yMin);
 
