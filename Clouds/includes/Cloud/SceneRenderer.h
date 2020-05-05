@@ -28,5 +28,4 @@ private:
 	glm::vec3 _terrainScale;
 
 	glm::vec3 _lightPos;
-
 };

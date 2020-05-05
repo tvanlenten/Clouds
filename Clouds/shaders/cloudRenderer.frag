@@ -14,10 +14,20 @@ uniform samplerCube skybox;
 uniform sampler2D prevColorTex;
 uniform sampler2D prevDepthTex;
 
+// DEBUG UNIFORMS
+uniform float xScale;
+uniform float yScale;
+uniform float zScale;
+uniform float cloudDefinition;
+uniform float cloudTrim;
+uniform float cloudHeight;
+uniform float cloudSlice;
+
 uniform vec3 lightDir;
 
 float min3(vec3 v) { return min(min(v.x, v.y), v.z); }
 float max3(vec3 v) { return max(max(v.x, v.y), v.z); }
+float remap(float x, float a, float b, float c, float d) { return (((x - a) / (b - a)) * (d - c)) + c; }
 void getRay(inout vec3 ro, inout vec3 rd)
 {
 	vec2 uvPlane = uv * 2.0 - 1.0;
@@ -39,11 +49,22 @@ bool InBounds(vec3 coord, vec3 minB, vec3 maxB) { return !any(bvec3(step(minB, c
 float remap(float x, float a, float b, float c, float d) { return (((x - a) / (b - a)) * (d - c)) + c; }
 
 float getCloud(vec3 p, vec3 scale)
-{
-	vec4 den = texture(cloudVolume, p * vec3(0.07,0.1,0.1));
-	float f = smoothstep(0.6, 1.0, den.x)*0.5 + den.y*0.25 + den.z*0.125 + den.w*0.0625;
+{	
+	vec4 den = texture(cloudVolume, p * vec3(xScale, yScale, zScale));
+	float perlinWorley = smoothstep(cloudDefinition, 1.0, den.r);
+	// worley fbms with different frequencies
+	vec3 worley = den.gba;
+	float wfbm = worley.x * .625 + // 0.415
+				worley.y * .125 + // 0.640
+				worley.z * .25; // 0.125
+	// cloud shape modeled after the GPU Pro 7 chapter
+	float cloud = remap(perlinWorley, wfbm - 1.0, 1.0, 0.0, 1.0);
+	cloud = remap(cloud, cloudTrim, 1.0, 0.0, 1.0); // fake cloud coverage
 
-	return smoothstep(1.0, 0.0, abs((p.y - 8.0)*0.5))*f; //clamp(-abs(p.y - 6.0) + 4.0*f, 0.0, 1.0 );
+	// vec4 den = texture(cloudVolume, p * vec3(0.07,0.1,0.1));
+	// float f = smoothstep(0.6, 1.0, den.x)*0.5 + den.y*0.25 + den.z*0.125 + den.w*0.0625;
+
+	return smoothstep(1.0, 0.0, abs((p.y - cloudHeight)*cloudSlice))*cloud; //clamp(-abs(p.y - 6.0) + 4.0*f, 0.0, 1.0 );
 }
 
 float getCloudNew(vec3 p, vec3 scale, float cloudDensity)
