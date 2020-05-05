@@ -20,7 +20,7 @@ Sun::Sun(glm::vec3 axis, float rot, float power)
 void Sun::Gui()
 {
 	ImGui::DragFloat3("Sun Axis", &_axis[0], 0.1, -5.0, 5.0);
-	ImGui::DragFloat("Sun Rotation", &_rot, 0.1);
+	ImGui::DragFloat("Sun Rotation", &_rot, 0.001);
 	ImGui::DragFloat("Sun Power", &_power, 0.1, 0.0, 50.0);
 	glm::vec3 dir = GetDirection();
 	ImGui::Text(std::string("Sun Dir <" + Utils::toString(dir.x) + "," + Utils::toString(dir.y) + "," + Utils::toString(dir.z) + ">").c_str());

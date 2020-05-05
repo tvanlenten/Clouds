@@ -46,7 +46,7 @@
 */
 int main()
 {
-	Controller controller(WIDTH, HEIGHT, "Clouds!", false);
+	Controller controller(WIDTH, HEIGHT, "Clouds!", true);
 	auto camera = std::make_shared<Camera>(glm::ivec2(WIDTH, HEIGHT), glm::vec3(0.5, 5.5, -0.5), 90.0f, 0.01f, 20.0f, 0.1f, 1.75f);
 	controller.addMovementEventHandeler(camera);
 	controller.addMouseMovementEventHandeler(camera);

@@ -213,17 +213,3 @@ void main()
 
 	imageStore(cubemap, ivec3(pixelCoord, cubeFace), color);
 }
-
-
-/*
-vec3 col = mix(
-		mix(vec3(0.062, 0.137, 0.062), vec3(0.192, 0.517, 0.121), smoothstep(0.0, 0.05, -nrd.y)),
-		mix(vec3(0.168, 0.035, 0.525), vec3(0.450, 0.721, 0.905), smoothstep(0.0, 1.0, nrd.y)),
-		step(0.0, nrd.y)
-	);
-	float sunT = iSphere(ro, nrd, vec4(sunPos, 0.4));
-	if(nrd.y > 0.0 && sunT > 0.0)
-	{
-		col = mix(col, vec3(0.956, 0.909, 0.580), 1.0/(sunT*sunT));
-	}
-*/

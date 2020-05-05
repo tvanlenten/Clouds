@@ -52,7 +52,6 @@ void getDepth(inout float t, vec3 ro)
 }
 bool InBounds(vec3 coord, vec3 minB, vec3 maxB) { return !any(bvec3(step(minB, coord) - step(coord, maxB))); }
 
-
 float getCloud(vec3 p, vec3 scale)
 {	
 	p.x += time*0.1;
@@ -91,30 +90,7 @@ float castLightRay(vec3 ro, vec3 rd, float tMin, float tMax, float stepSize, flo
 	return density;
 }
 
-
-// constant step ray marching
-float castRay(vec3 ro, vec3 rd, float tMin, float tMax, float stepSize, float cloudDensity, vec3 scale)
-{
-	float t = tMin;
-	float dt = tMax - tMin;
-
-	float light = 0.0;
-	while(t < tMax)
-	{
-		//float tempD = getCloud(ro + rd*t, scale) * cloudDensity;
-
-		float tempL = castLightRay(ro + rd*t, sunDir, 0.0, 1.0, 0.2, cloudDensity, scale);
-
-		light += tempL * stepSize;
-
-		//density += getCloud(ro + rd*t, scale) * cloudDensity;
-		t += max(t*stepSize*0.5, stepSize);
-	}
-
-	return light;
-}
-
-vec3 castRayIQ(vec3 ro, vec3 rd, float tMin, float tMax, float stepSize, vec3 scale, vec3 prevCol)
+vec3 rayMarch(vec3 ro, vec3 rd, float tMin, float tMax, float stepSize, vec3 scale, vec3 prevCol)
 {
 	float t = tMin;
 	vec4 sum = vec4(0.0);
@@ -188,7 +164,7 @@ void main()
 	float tMin = (InBounds(ro, minBound, maxBound))? 0.0 : boxTmin;
 	tMax = min(boxTmax, tMax);
 
-	vec3 col = castRayIQ(ro, rd, tMin + hash12(uv)*stepSize*5.0, tMax, stepSize, vec3(1.0), prevColor); //1.0 / vec3(10.0, 8.0, 10.0)
+	vec3 col = rayMarch(ro, rd, tMin + hash12(uv)*stepSize*5.0, tMax, stepSize, vec3(1.0), prevColor);
 
 	FragColor = vec4(col,1.0);;
 
