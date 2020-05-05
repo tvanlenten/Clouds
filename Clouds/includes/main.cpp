@@ -33,11 +33,11 @@
 #include "Cloud/Sun.h"
 
 
-//#define WIDTH 1920
-//#define HEIGHT 1080
+#define WIDTH 1920
+#define HEIGHT 1080
 
-#define WIDTH 1280
-#define HEIGHT 720
+//#define WIDTH 1280
+//#define HEIGHT 720
 
 /*
 	Clouds!
@@ -59,7 +59,7 @@ int main()
 	auto sun = std::make_shared<Sun>();
 
 	// create generators
-	auto skyboxGenerator = std::make_shared<SkyboxGenerator>(glm::ivec2(512, 512));
+	auto skyboxGenerator = std::make_shared<SkyboxGenerator>(glm::ivec2(1024, 1024));
 	auto cloudGenerator = std::make_shared<CloudGenerator>(glm::ivec3(128), glm::f32(4.0));
 
 	// generate textures
@@ -90,9 +90,9 @@ int main()
 	float freqDebug = 4.0;
 	static int channel = 0;
 	float slice = 0.5;
-	bool debugTime = true;
+	bool debugTime = false;
 
-	double skyboxRenderTime, cloudRenderTime, terrainRenderTime;
+	double skyboxRenderTime = 0.0, cloudRenderTime = 0.0, terrainRenderTime = 0.0;
 
 	// main draw loop
 	controller.showMouse();
@@ -142,7 +142,7 @@ int main()
 
 		// draw scene
 		if (debugTime) gpuTimer->start();
-		sceneRenderer->Draw(target, skyboxTexture, camera, sun->GetDirection());
+		sceneRenderer->Draw(target, skyboxTexture, camera, sun->GetDirection(), sun->GetPower());
 		if (debugTime)
 		{
 			gpuTimer->stop();
@@ -151,7 +151,7 @@ int main()
 
 		// draw clouds
 		if (debugTime) gpuTimer->start();
-		cloudRenderer->Draw(target, camera);
+		cloudRenderer->Draw(target, camera, skyboxTexture, sun->GetDirection(), sun->GetPower(), controller.getTime());
 		if (debugTime)
 		{
 			gpuTimer->stop();

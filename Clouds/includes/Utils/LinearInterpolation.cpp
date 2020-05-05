@@ -31,10 +31,10 @@ glm::vec2 Utils::SimpleGrad(float* tex, glm::ivec2 texDims, glm::ivec2 coord)
 
 glm::vec3 Utils::HeightMapNormal(float* tex, glm::ivec2 texDims, glm::ivec2 coord, glm::vec3 scale)
 {
-	glm::ivec2 xMinCoord = glm::clamp(glm::ivec2(coord.x - 1, coord.y), glm::ivec2(0), texDims);
-	glm::ivec2 xMaxCoord = glm::clamp(glm::ivec2(coord.x + 1, coord.y), glm::ivec2(0), texDims);
-	glm::ivec2 yMinCoord = glm::clamp(glm::ivec2(coord.x, coord.y - 1), glm::ivec2(0), texDims);
-	glm::ivec2 yMaxCoord = glm::clamp(glm::ivec2(coord.x, coord.y + 1), glm::ivec2(0), texDims);
+	glm::ivec2 xMinCoord = glm::clamp(glm::ivec2(coord.x - 1, coord.y), glm::ivec2(0), texDims - 1);
+	glm::ivec2 xMaxCoord = glm::clamp(glm::ivec2(coord.x + 1, coord.y), glm::ivec2(0), texDims - 1);
+	glm::ivec2 yMinCoord = glm::clamp(glm::ivec2(coord.x, coord.y - 1), glm::ivec2(0), texDims - 1);
+	glm::ivec2 yMaxCoord = glm::clamp(glm::ivec2(coord.x, coord.y + 1), glm::ivec2(0), texDims - 1);
 
 	float xMinY = tex[xMinCoord.x + (xMinCoord.y * texDims.x)];
 	float xMaxY = tex[xMaxCoord.x + (xMaxCoord.y * texDims.x)];

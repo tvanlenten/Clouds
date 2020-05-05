@@ -6,6 +6,8 @@ uniform ivec2 texDims;
 uniform vec3 sunDir;
 uniform float sunPower;
 
+uniform samplerCube starTex;
+
 #define _PI 3.14159265359
 
 const float earthRadius = 6360e3; // meters
@@ -176,15 +178,36 @@ void main()
 	GetRay(uv, cubeFace, ro, rd);
 	vec3 nrd = normalize(rd);
 
-	if(nrd.y < 0.0)
-	{
-		imageStore(cubemap, ivec3(pixelCoord, cubeFace), mix(vec4(0.062, 0.137, 0.062, 1.0), vec4(0.192, 0.517, 0.121, 1.0), smoothstep(0.0, 1.0, -nrd.y)));
-		return;
-	}
-
 	ro = vec3(0.0, earthRadius + 1.0 ,0.0);
-	
-	vec3 skyCol = rayleighScatter(ro, nrd, 16, 8);
+	vec3 skyCol;
+	if(nrd.y > 0.0)
+	{ 
+		if(sunDir.y < 0.0)
+		{
+			vec3 tan = cross(sunDir, vec3(1.0,0.0,0.0));
+			vec3 bitan = cross(tan, sunDir);
+			mat3 rot = transpose(mat3(tan, bitan, sunDir));
+			skyCol = texture(starTex, rot*nrd).rgb;
+		}
+		else
+		{
+			skyCol = rayleighScatter(ro, nrd, 16, 8);
+		}
+	}
+	else
+	{
+		if(sunDir.y < 0.0)
+		{
+			vec3 tan = cross(sunDir, vec3(1.0,0.0,0.0));
+			vec3 bitan = cross(tan, sunDir);
+			mat3 rot = transpose(mat3(tan, bitan, sunDir));
+			skyCol = mix(texture(starTex, rot*vec3(nrd.x, -nrd.y, nrd.z)).rgb, vec3(0.031, 0.047, 0.349), sin(-nrd.y)*0.5);
+		}
+		else
+		{
+			skyCol = mix(rayleighScatter(ro, vec3(nrd.x, -nrd.y, nrd.z), 16, 8), vec3(0.031, 0.047, 0.349), -nrd.y*0.5);
+		}
+	}
 
 	vec4 color = vec4(skyCol, 1.0);
 

@@ -25,7 +25,8 @@ public:
 private:
 	std::shared_ptr<ComputeShader> _skyboxGenShader;
 	std::shared_ptr<TextureCubeMap> _cubemapTex;
-	
+	std::shared_ptr<TextureCubeMap> _starsTex;
+
 	glm::ivec2 _cubemapFaceDimensions;
 	glm::ivec3 _groupDims;
 

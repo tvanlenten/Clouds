@@ -15,11 +15,18 @@ SkyboxGenerator::SkyboxGenerator(glm::ivec2 cubemapFaceDims)
 	_skyboxGenShader = std::make_shared<ComputeShader>("shaders/skyboxGenerator.comp", false);
 	_skyboxGenShader->Start();
 	_skyboxGenShader->Set("texDims", _cubemapFaceDimensions);
+	_skyboxGenShader->Set("starTex", 1);
 	_skyboxGenShader->End();
 
 	// some value that will never be used
 	_lastSunDir = glm::vec3(-9999.0);
 	_lastSunPower = -9999.0;
+
+	std::string faces[] = {
+		"textures/starCubemap/front.png", "textures/starCubemap/back.png",
+		"textures/starCubemap/top.png", "textures/starCubemap/bottom.png",
+		"textures/starCubemap/left.png", "textures/starCubemap/right.png" };
+	_starsTex = std::make_shared<TextureCubeMap>(faces, false, true);
 
 	_timer = std::make_shared<TimeQuery>();
 }
@@ -40,6 +47,7 @@ std::shared_ptr<TextureCubeMap> SkyboxGenerator::Generate(glm::vec3 sunDir, floa
 		_skyboxGenShader->Start();
 
 		_cubemapTex->bindTo(0);
+		_starsTex->use(1);
 		_skyboxGenShader->Set("sunDir", sunDir);
 		_skyboxGenShader->Set("sunPower", sunPower);
 

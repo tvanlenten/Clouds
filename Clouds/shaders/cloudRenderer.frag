@@ -2,7 +2,7 @@
 #define MAX_RAY_STEPS 256
 #define MIN_RAY_STEP_SIZE 0.001
 #define ERROR 1.0
-#define MAX_T 30.0
+#define MAX_T 50.0
 
 in vec2 uv;
 out vec4 FragColor;
@@ -22,9 +22,13 @@ uniform float cloudDefinition;
 uniform float cloudTrim;
 uniform float cloudHeight;
 uniform float cloudSlice;
+uniform float cloudDensity;
 
-uniform vec3 lightDir;
+uniform vec3 sunDir;
 uniform float stepSize;
+uniform float sunPower;
+
+uniform float time;
 
 float min3(vec3 v) { return min(min(v.x, v.y), v.z); }
 float max3(vec3 v) { return max(max(v.x, v.y), v.z); }
@@ -51,6 +55,8 @@ bool InBounds(vec3 coord, vec3 minB, vec3 maxB) { return !any(bvec3(step(minB, c
 
 float getCloud(vec3 p, vec3 scale)
 {	
+	p.x += time*0.1;
+
 	vec4 den = texture(cloudVolume, p * vec3(xScale, yScale, zScale));
 	float perlinWorley = smoothstep(cloudDefinition, 1.0, den.r);
 	// worley fbms with different frequencies
@@ -65,7 +71,7 @@ float getCloud(vec3 p, vec3 scale)
 	// vec4 den = texture(cloudVolume, p * vec3(0.07,0.1,0.1));
 	// float f = smoothstep(0.6, 1.0, den.x)*0.5 + den.y*0.25 + den.z*0.125 + den.w*0.0625;
 
-	return smoothstep(1.0, 0.0, abs((p.y - cloudHeight)*cloudSlice))*cloud; //clamp(-abs(p.y - 6.0) + 4.0*f, 0.0, 1.0 );
+	return smoothstep(0.0, 1.0, -abs(p.y - cloudHeight) + cloudSlice) * cloud;
 }
 
 float castLightRay(vec3 ro, vec3 rd, float tMin, float tMax, float stepSize, float cloudDensity, vec3 scale)
@@ -97,7 +103,7 @@ float castRay(vec3 ro, vec3 rd, float tMin, float tMax, float stepSize, float cl
 	{
 		//float tempD = getCloud(ro + rd*t, scale) * cloudDensity;
 
-		float tempL = castLightRay(ro + rd*t, lightDir, 0.0, 1.0, 0.2, cloudDensity, scale);
+		float tempL = castLightRay(ro + rd*t, sunDir, 0.0, 1.0, 0.2, cloudDensity, scale);
 
 		light += tempL * stepSize;
 
@@ -108,15 +114,15 @@ float castRay(vec3 ro, vec3 rd, float tMin, float tMax, float stepSize, float cl
 	return light;
 }
 
-vec3 castRayIQ(vec3 ro, vec3 rd, float tMin, float tMax, float stepSize, float cloudDensity, vec3 scale, vec3 prevCol)
+vec3 castRayIQ(vec3 ro, vec3 rd, float tMin, float tMax, float stepSize, vec3 scale, vec3 prevCol)
 {
 	float t = tMin;
 	vec4 sum = vec4(0.0);
 
-	vec3 lightCol = vec3(1.0);//vec3(1.0,0.6,0.3);
-	vec3 skyCol = vec3(0.25,0.3,0.35);
+	vec3 lightCol = texture(skybox, sunDir).rgb; //vec3(1.0,0.6,0.3);
+	vec3 skyCol = vec3(1.0,0.95,0.8);//vec3(0.25,0.3,0.35);
 	vec3 cloudCol = vec3(1.0,0.95,0.8);
-	float lightPower = 1.0;
+	float lightPower = max(smoothstep(0.0, 0.055, sunDir.y), 0.01) * (sunPower * 0.05);
 
 	while(t < tMax)
 	{
@@ -125,7 +131,7 @@ vec3 castRayIQ(vec3 ro, vec3 rd, float tMin, float tMax, float stepSize, float c
 		if( den>0.01 )
 		{
 
-			float cc = getCloud(pos+0.3*lightDir, scale);
+			float cc = getCloud(pos+0.3*sunDir, scale);
 			float dif = clamp((den - cc)*1.5, 0.0, 1.0 );
 
 			//col.xyz = mix( col.xyz, prevCol, 1.0-exp(-0.003*t*t) );
@@ -164,8 +170,8 @@ void main()
 
 	vec3 prevColor = texture(prevColorTex, uv).rgb;
 
-	vec3 minBound = vec3(-40.0, 4.0, -40.0);
-	vec3 maxBound = vec3(40.0, 12.0, 40.0);
+	vec3 minBound = vec3(-100.0, cloudHeight - cloudSlice, -100.0);
+	vec3 maxBound = vec3(100.0, cloudHeight + cloudSlice, 100.0);
 
 	vec3 pos0 = (minBound - ro) / rd;
 	vec3 pos1 = (maxBound - ro) / rd;
@@ -182,14 +188,7 @@ void main()
 	float tMin = (InBounds(ro, minBound, maxBound))? 0.0 : boxTmin;
 	tMax = min(boxTmax, tMax);
 
-	//ro = ro + rd*tMin;
-	//tMax = tMax - tMin;
-
-	//float density = castRay(ro, rd, tMin, tMax, 0.06, 0.5, 1.0 / vec3(10.0, 3.0, 10.0));
-
-	//float transmittance = clamp(exp(-density), 0.0, 1.0);
-
-	vec3 col = castRayIQ(ro, rd, tMin + hash12(uv)*stepSize*5.0, tMax, stepSize, 1.0, vec3(1.0), prevColor); //1.0 / vec3(10.0, 8.0, 10.0)
+	vec3 col = castRayIQ(ro, rd, tMin + hash12(uv)*stepSize*5.0, tMax, stepSize, vec3(1.0), prevColor); //1.0 / vec3(10.0, 8.0, 10.0)
 
 	FragColor = vec4(col,1.0);;
 
