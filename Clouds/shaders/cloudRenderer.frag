@@ -36,7 +36,7 @@ void getDepth(inout float t, vec3 ro)
 	t = (depth == 1.0)? MAX_T : length(d - ro);
 }
 bool InBounds(vec3 coord, vec3 minB, vec3 maxB) { return !any(bvec3(step(minB, coord) - step(coord, maxB))); }
-
+float remap(float x, float a, float b, float c, float d) { return (((x - a) / (b - a)) * (d - c)) + c; }
 
 float getCloud(vec3 p, vec3 scale)
 {
@@ -44,6 +44,22 @@ float getCloud(vec3 p, vec3 scale)
 	float f = smoothstep(0.6, 1.0, den.x)*0.5 + den.y*0.25 + den.z*0.125 + den.w*0.0625;
 
 	return smoothstep(1.0, 0.0, abs((p.y - 8.0)*0.5))*f; //clamp(-abs(p.y - 6.0) + 4.0*f, 0.0, 1.0 );
+}
+
+float getCloudNew(vec3 p, vec3 scale, float cloudDensity)
+{
+	// Create cloud effects!
+	float perlinWorley = texture(cloudVolume, p*scale).r;
+	// worley fbms with different frequencies
+	vec3 worley = texture(cloudVolume, p*scale).gba;
+	float wfbm = worley.x * .625 +
+				worley.y * .125 +
+				worley.z * .25; 
+	// cloud shape modeled after the GPU Pro 7 chapter
+	float cloud = remap(perlinWorley, wfbm - 1., 1., 0., 1.);
+	cloud = remap(cloud, .85, 1., 0., 1.); // fake cloud coverage
+	
+	return cloud * cloudDensity;
 }
 
 float castLightRay(vec3 ro, vec3 rd, float tMin, float tMax, float stepSize, float cloudDensity, vec3 scale)
@@ -99,11 +115,11 @@ vec3 castRayIQ(vec3 ro, vec3 rd, float tMin, float tMax, float stepSize, float c
 	while(t < tMax)
 	{
 		vec3 pos = ro + t*rd;
-		float den = getCloud(pos, scale)*cloudDensity;
+		float den = getCloudNew(pos, scale, cloudDensity)*cloudDensity;
 		if( den>0.01 )
 		{
 
-			float cc = getCloud(pos+0.3*lightDir, scale);
+			float cc = getCloudNew(pos+0.3*lightDir, scale, cloudDensity);
 			float dif = clamp((den - cc)*1.5, 0.0, 1.0 );
 
 			//col.xyz = mix( col.xyz, prevCol, 1.0-exp(-0.003*t*t) );
@@ -167,8 +183,8 @@ void main()
 
 	//float transmittance = clamp(exp(-density), 0.0, 1.0);
 
-	float stepSize = 0.1;
-	vec3 col = castRayIQ(ro, rd, tMin + hash12(uv)*stepSize*5.0, tMax, stepSize, 1.0, vec3(1.0), prevColor); //1.0 / vec3(10.0, 8.0, 10.0)
+	float stepSize = 0.3;
+	vec3 col = castRayIQ(ro, rd, tMin + hash12(uv)*0.1, tMax, stepSize, 1.0, vec3(0.1), prevColor); //1.0 / vec3(10.0, 8.0, 10.0)
 
 	FragColor = vec4(col,1.0);//col;//vec4(1.0, 1.0, 1.0, density);
 

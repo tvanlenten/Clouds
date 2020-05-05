@@ -14,7 +14,7 @@ public:
 	/*
 		Generates the cubemap texture
 	*/
-	std::shared_ptr<TextureCubeMap> Generate(glm::vec3 sunPosition);
+	std::shared_ptr<TextureCubeMap> Generate(glm::vec3 sunDir, float sunPower);
 
 	/*
 		Get the skybox cubemap texture
@@ -27,4 +27,7 @@ private:
 	
 	glm::ivec2 _cubemapFaceDimensions;
 	glm::ivec3 _groupDims;
+
+	glm::vec3 _lastSunDir;
+	float _lastSunPower;
 };

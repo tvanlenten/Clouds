@@ -12,22 +12,33 @@ SkyboxGenerator::SkyboxGenerator(glm::ivec2 cubemapFaceDims)
 	_skyboxGenShader->Start();
 	_skyboxGenShader->Set("texDims", _cubemapFaceDimensions);
 	_skyboxGenShader->End();
+
+	// some value that will never be used
+	_lastSunDir = glm::vec3(-9999.0);
+	_lastSunPower = -9999.0;
 }
 
 SkyboxGenerator::~SkyboxGenerator()
 {
 }
 
-std::shared_ptr<TextureCubeMap> SkyboxGenerator::Generate(glm::vec3 sunPosition)
+std::shared_ptr<TextureCubeMap> SkyboxGenerator::Generate(glm::vec3 sunDir, float sunPower)
 {
-	_skyboxGenShader->Start();
+	if (sunDir != _lastSunDir || sunPower != _lastSunPower)
+	{
+		_lastSunDir = sunDir;
+		_lastSunPower = sunPower;
 
-	_cubemapTex->bindTo(0);
-	_skyboxGenShader->Set("sunPos", sunPosition);
+		_skyboxGenShader->Start();
 
-	_skyboxGenShader->Dispatch(_groupDims);
-	_skyboxGenShader->End();
-	glMemoryBarrier(GL_ALL_BARRIER_BITS); // wait until finished generating
+		_cubemapTex->bindTo(0);
+		_skyboxGenShader->Set("sunDir", sunDir);
+		_skyboxGenShader->Set("sunPower", sunPower);
+
+		_skyboxGenShader->Dispatch(_groupDims);
+		_skyboxGenShader->End();
+		glMemoryBarrier(GL_ALL_BARRIER_BITS); // wait until finished generating
+	}
 
 	return _cubemapTex;
 }

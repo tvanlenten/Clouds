@@ -3,7 +3,27 @@ layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
 layout (rgba8, binding = 0) uniform imageCube cubemap;
 
 uniform ivec2 texDims;
-uniform vec3 sunPos;
+uniform vec3 sunDir;
+uniform float sunPower;
+
+#define _PI 3.14159265359
+
+const float earthRadius = 6360e3; // meters
+const float earthAtmosphereRadius = 6420e3; // meters
+
+// scattering coefficients at sea level (m)
+const vec3 betaR = vec3(5.5e-6, 13.0e-6, 22.4e-6); // Rayleigh 
+const vec3 betaM = vec3(21e-6); // Mie
+
+// thickness of the atmosphere if its density were uniform
+const float hR = 7994.0; // Rayleigh
+const float hM = 1200.0; // Mie
+
+const vec4 sAtmosphere = vec4(0.0, 0.0, 0.0, earthAtmosphereRadius);
+const vec4 sEarth = vec4(0.0, 0.0, 0.0, earthRadius); 
+
+float hash( float n ) { return fract(sin(n)*43758.5453); }
+float hash31( vec3 n ) { return hash(n.x+10.*n.y+100.*n.z); }
 
 void GetRay(vec2 uv, int cubeFace, inout vec3 ro, inout vec3 rd)
 {
@@ -32,18 +52,118 @@ void GetRay(vec2 uv, int cubeFace, inout vec3 ro, inout vec3 rd)
 	}
 }
 
-float iSphere(vec3 ro, vec3 rd, vec4 sph)
+bool iSphere(vec3 ro, vec3 rd, vec4 sph, inout float t0, inout float t1)
 {
-    vec3  d = ro - sph.xyz;
-    float b = dot(rd,d);
-    float w = sph.w*sph.w;
-    float c = dot(d,d) - w;
-    float t = b*b-c;
-    
-    if(t > 0.0) {
-        return (dot(d,d) < w)? -b+sqrt(t) : -b-sqrt(t);
-    }
-    return -1.0;
+    vec3 rc = sph.xyz - ro;
+	float radius2 = sph.w * sph.w;
+	float tca = dot(rc, rd);
+	float d2 = dot(rc, rc) - tca * tca;
+	if (d2 > radius2)
+		return false;
+	float thc = sqrt(radius2 - d2);
+	t0 = tca - thc;
+	t1 = tca + thc;
+
+	return true;
+}
+
+float rayleighPhase(float mu)
+{
+	return
+			3. * (1. + mu*mu)
+	/ //------------------------
+				(16. * _PI);
+}
+
+// Henyey-Greenstein phase function factor [-1, 1]
+// represents the average cosine of the scattered directions
+// 0 is isotropic scattering
+// > 1 is forward scattering, < 1 is backwards
+const float g = 0.76;
+float henyeyGreensteinPhase(float mu)
+{
+	return
+						(1. - g*g)
+	/ //---------------------------------------------
+		((4. * _PI) * pow(1. + g*g - 2.*g*mu, 1.5));
+}
+
+
+bool getSunLight(vec3 ro, vec3 rd, inout float opticalDepthR, inout float opticalDepthM, int numLightSamples)
+{
+	float t0, t1;
+	iSphere(ro, rd, sAtmosphere, t0, t1);
+
+	float marchPos = 0.;
+	float stepSize = t1 / float(numLightSamples);
+
+	for (int i = 0; i < numLightSamples; ++i)
+	{
+		vec3 s = ro + rd * (marchPos + 0.5 * stepSize);
+		float height = length(s) - earthRadius;
+		if (height < 0.0)
+			return false;
+
+		opticalDepthR += exp(-height / hR) * stepSize;
+		opticalDepthM += exp(-height / hM) * stepSize;
+
+		marchPos += stepSize;
+	}
+
+	return true;
+}
+
+
+vec3 rayleighScatter(vec3 ro, vec3 rd, int numSamples, int numLightSamples)
+{
+	float t0, t1;
+	if (!iSphere(ro, rd, sAtmosphere, t0, t1))
+		return vec3(1.0,0.0,0.0);
+
+	float stepSize = t1 / float(numSamples);
+
+	// cosine of angle between view and light directions
+	float mu = dot(rd, sunDir);
+
+	float phaseR = rayleighPhase(mu);
+	float phaseM = henyeyGreensteinPhase(mu);
+
+	float opticalDepthR = 0.0;
+	float opticalDepthM = 0.0;
+
+	vec3 sumR = vec3(0.0);
+	vec3 sumM = vec3(0.0);
+	float marchPos = hash31(rd)*stepSize*0.01; //offset ray to dither the samples
+	for (int i = 0; i < numSamples; i++)
+	{
+		vec3 s = ro + rd * (marchPos + 0.5 * stepSize);
+		float height = length(s) - earthRadius;
+
+		// integrate the height scale
+		float hr = exp(-height / hR) * stepSize;
+		float hm = exp(-height / hM) * stepSize;
+		opticalDepthR += hr;
+		opticalDepthM += hm;
+
+		// gather the sunlight
+		float opticalDepthLightR = 0.0;
+		float opticalDepthLightM = 0.0;
+
+		if (getSunLight(s, sunDir, opticalDepthLightR, opticalDepthLightM, numLightSamples))
+		{
+			vec3 tau =
+				betaR * (opticalDepthR + opticalDepthLightR) +
+				betaM * 1.1 * (opticalDepthM + opticalDepthLightM);
+			vec3 attenuation = exp(-tau);
+
+			sumR += hr * attenuation;
+			sumM += hm * attenuation;
+		}
+
+		marchPos += stepSize;
+	}
+
+	return sunPower * (sumR * phaseR * betaR + sumM * phaseM * betaM);
 }
 
 void main()
@@ -56,19 +176,31 @@ void main()
 	GetRay(uv, cubeFace, ro, rd);
 	vec3 nrd = normalize(rd);
 
-	vec3 col = mix(
+	if(nrd.y < 0.0)
+	{
+		imageStore(cubemap, ivec3(pixelCoord, cubeFace), mix(vec4(0.062, 0.137, 0.062, 1.0), vec4(0.192, 0.517, 0.121, 1.0), smoothstep(0.0, 1.0, -nrd.y)));
+		return;
+	}
+
+	ro = vec3(0.0, earthRadius + 1.0 ,0.0);
+	
+	vec3 skyCol = rayleighScatter(ro, nrd, 16, 8);
+
+	vec4 color = vec4(skyCol, 1.0);
+
+	imageStore(cubemap, ivec3(pixelCoord, cubeFace), color);
+}
+
+
+/*
+vec3 col = mix(
 		mix(vec3(0.062, 0.137, 0.062), vec3(0.192, 0.517, 0.121), smoothstep(0.0, 0.05, -nrd.y)),
 		mix(vec3(0.168, 0.035, 0.525), vec3(0.450, 0.721, 0.905), smoothstep(0.0, 1.0, nrd.y)),
 		step(0.0, nrd.y)
 	);
-
 	float sunT = iSphere(ro, nrd, vec4(sunPos, 0.4));
 	if(nrd.y > 0.0 && sunT > 0.0)
 	{
 		col = mix(col, vec3(0.956, 0.909, 0.580), 1.0/(sunT*sunT));
 	}
-
-	vec4 color = vec4(col, 1.0);
-
-	imageStore(cubemap, ivec3(pixelCoord, cubeFace), color);
-}
+*/

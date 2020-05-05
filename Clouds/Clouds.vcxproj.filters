@@ -36,6 +36,7 @@
     <ClCompile Include="includes\OpenGL\Shader.cpp" />
     <ClCompile Include="includes\Utils\RandomUtils.cpp" />
     <ClCompile Include="includes\Utils\LinearInterpolation.cpp" />
+    <ClCompile Include="includes\Cloud\Sun.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="includes\ImGui\GUI.h" />
@@ -78,6 +79,7 @@
     <ClInclude Include="includes\OpenGL\Shader.h" />
     <ClInclude Include="includes\Utils\RandomUtils.h" />
     <ClInclude Include="includes\Utils\LinearInterpolation.h" />
+    <ClInclude Include="includes\Cloud\Sun.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

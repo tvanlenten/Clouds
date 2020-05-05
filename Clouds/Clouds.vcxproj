@@ -147,6 +147,7 @@
     <ClCompile Include="includes\Cloud\SceneRenderer.cpp" />
     <ClCompile Include="includes\Cloud\SkyboxGenerator.cpp" />
     <ClCompile Include="includes\Cloud\SkyboxRenderer.cpp" />
+    <ClCompile Include="includes\Cloud\Sun.cpp" />
     <ClCompile Include="includes\ImGui\GUI.cpp" />
     <ClCompile Include="includes\ImGui\imgui.cpp" />
     <ClCompile Include="includes\ImGui\imgui_draw.cpp" />
@@ -184,6 +185,7 @@
     <ClInclude Include="includes\Cloud\SceneRenderer.h" />
     <ClInclude Include="includes\Cloud\SkyboxGenerator.h" />
     <ClInclude Include="includes\Cloud\SkyboxRenderer.h" />
+    <ClInclude Include="includes\Cloud\Sun.h" />
     <ClInclude Include="includes\ImGui\GUI.h" />
     <ClInclude Include="includes\ImGui\imconfig.h" />
     <ClInclude Include="includes\ImGui\imgui.h" />

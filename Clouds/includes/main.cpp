@@ -28,6 +28,7 @@
 #include "Cloud/SceneRenderer.h"
 #include "Cloud/CloudGenerator.h"
 #include "Cloud/SkyboxRenderer.h"
+#include "Cloud/Sun.h"
 
 
 //#define WIDTH 1920
@@ -51,12 +52,15 @@ int main()
 	auto screen = std::make_shared<RenderTarget>(glm::ivec2(WIDTH, HEIGHT));
 
 
+	// create sun
+	auto sun = std::make_shared<Sun>();
+
 	// create generators
 	auto skyboxGenerator = std::make_shared<SkyboxGenerator>(glm::ivec2(512, 512));
 	auto cloudGenerator = std::make_shared<CloudGenerator>(glm::ivec3(128), glm::f32(4.0));
 
 	// generate textures
-	auto skyboxTexture = skyboxGenerator->Generate(glm::vec3(2.0, 1.0, 0.0));
+	auto skyboxTexture = skyboxGenerator->Generate(sun->GetDirection(), sun->GetPower());
 	auto cloudVolume = cloudGenerator->Generate();
 
 
@@ -74,7 +78,7 @@ int main()
 	//DEBUG VALUES FOR TEXTURE
 	auto texDebugShader = std::make_shared<Shader>("shaders/screen.vert", "shaders/debugCloudTex.frag", nullptr, false);
 	bool debuggingTex = false;
-	static int channel = 0;
+	int channel = 0;
 	float slice = 0.5;
 
 	// main draw loop
@@ -95,6 +99,10 @@ int main()
 			controller.showMouse();
 			camera->shouldUpdate(false);
 		}
+
+		// update skybox will only run if something has changed
+		skyboxGenerator->Generate(sun->GetDirection(), sun->GetPower());
+
 
 		// Init Render Pass
 		target->bind();
@@ -134,6 +142,7 @@ int main()
 		ImGui::Text(std::string("Camera Front z: " + std::to_string(camera->Front.z)).c_str());
 		sceneRenderer->Gui();
 		skyboxRenderer->Gui();
+		sun->Gui();
 
 		// Debug Tex
 		ImGui::RadioButton("R", &channel, 0); ImGui::SameLine();
