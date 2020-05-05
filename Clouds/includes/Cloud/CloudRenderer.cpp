@@ -85,7 +85,7 @@ void CloudRenderer::Gui()
 	ImGui::DragFloat("cloudDefinition", &_cloudDefinition_DEBUG, 0.001f, 0.0f, 1.0f);
 	ImGui::DragFloat("cloudTrim", &_cloudTrim_DEBUG, 0.001f, 0.0f, 1.0f);
 	ImGui::DragFloat("cloudHeight", &_cloudHeight_DEBUG, 0.01f, 3.0f, 12.0f);
-	ImGui::DragFloat("cloudSlice", &_cloudSlice_DEBUG, 0.001f, 0.0f, 1.0f);
+	ImGui::DragFloat("cloudSlice", &_cloudSlice_DEBUG, 0.001f, 0.0f, 3.5f);
 	ImGui::DragFloat("cloudDensity", &_cloudDensity_DEBUG, 0.01f, 0.0f, 10.0f);
 }
 
