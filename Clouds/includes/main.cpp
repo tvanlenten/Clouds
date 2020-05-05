@@ -44,7 +44,7 @@
 int main()
 {
 	Controller controller(WIDTH, HEIGHT, "Clouds!", false);
-	auto camera = std::make_shared<Camera>(glm::ivec2(WIDTH, HEIGHT), glm::vec3(0.5, 0.0, -0.5), 90.0f, 0.01f, 20.0f, 0.1f, 1.75f);
+	auto camera = std::make_shared<Camera>(glm::ivec2(WIDTH, HEIGHT), glm::vec3(0.5, 5.5, -0.5), 90.0f, 0.01f, 20.0f, 0.1f, 1.75f);
 	controller.addMovementEventHandeler(camera);
 	controller.addMouseMovementEventHandeler(camera);
 	GUI gui(controller.getWindow());
@@ -74,6 +74,8 @@ int main()
 	//DEBUG VALUES FOR TEXTURE
 	auto texDebugShader = std::make_shared<Shader>("shaders/screen.vert", "shaders/debugCloudTex.frag", nullptr, false);
 	bool debuggingTex = false;
+	bool regenTex = false;
+	float freqDebug = 4.0;
 	static int channel = 0;
 	float slice = 0.5;
 
@@ -96,6 +98,13 @@ int main()
 			camera->shouldUpdate(false);
 		}
 
+		if (regenTex) {
+			cloudGenerator->SetFreq(freqDebug);
+			cloudVolume = cloudGenerator->Generate();
+			cloudRenderer->SetCloudVolume(cloudVolume);
+			regenTex = false;
+		}
+
 		// Init Render Pass
 		target->bind();
 		target->clear();
@@ -109,7 +118,7 @@ int main()
 		// draw clouds
 		cloudRenderer->Draw(target, camera);
 
-		// draw debug clound texture to screen quad
+		// draw debug cloud texture to screen quad
 		if (debuggingTex) {			
 			texDebugShader->Start();
 			texDebugShader->Set("cloudVolume", 0);
@@ -134,6 +143,7 @@ int main()
 		ImGui::Text(std::string("Camera Front z: " + std::to_string(camera->Front.z)).c_str());
 		sceneRenderer->Gui();
 		skyboxRenderer->Gui();
+		cloudRenderer->Gui();
 
 		// Debug Tex
 		ImGui::RadioButton("R", &channel, 0); ImGui::SameLine();
@@ -143,6 +153,8 @@ int main()
 		ImGui::RadioButton("CLOUD", &channel, 4);
 		ImGui::DragFloat("slice", &slice, 0.001f, 0.0f, 1.0f);
 		ImGui::Checkbox("Debug", &debuggingTex);
+		ImGui::Checkbox("Regenerate Cloud", &regenTex);
+		ImGui::DragFloat("Cloud Freq", &freqDebug, 1.0f, -15.0f, 15.0f);
 
 		ImGui::End();
 
