@@ -36,4 +36,5 @@ private:
 	glm::f32 _cloudHeight_DEBUG = 9.5f;
 	glm::f32 _cloudSlice_DEBUG = 0.4f;
 
+	float _rayMarchstepSize_DEBUG = 0.1;
 };

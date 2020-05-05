@@ -85,12 +85,12 @@
     <None Include="packages.config" />
     <None Include="shaders\skybox.vert" />
     <None Include="shaders\skybox.frag" />
-    <None Include="shaders\phong.vert" />
-    <None Include="shaders\phong.frag" />
     <None Include="shaders\skyboxGenerator.comp" />
     <None Include="shaders\cloudRenderer.frag" />
     <None Include="shaders\screen.vert" />
     <None Include="shaders\cloudGenerator.comp" />
     <None Include="shaders\debugCloudTex.frag" />
+    <None Include="shaders\terrain.vert" />
+    <None Include="shaders\terrain.frag" />
   </ItemGroup>
 </Project>

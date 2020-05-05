@@ -18,9 +18,7 @@ public:
 
 	void Gui();
 
-	void Update();
-
-	void Draw(std::shared_ptr<RenderTarget> target, std::shared_ptr<TextureCubeMap> skyboxTexture, std::shared_ptr<Camera> camera);
+	void Draw(std::shared_ptr<RenderTarget> target, std::shared_ptr<TextureCubeMap> skyboxTexture, std::shared_ptr<Camera> camera, glm::vec3 lightDir);
 
 private:
 	std::shared_ptr<Shader> _phongShader;

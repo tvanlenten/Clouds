@@ -54,6 +54,7 @@ void CloudRenderer::Draw(std::shared_ptr<RenderTarget> target, std::shared_ptr<C
 	_cloudShader->Set("cloudTrim", _cloudTrim_DEBUG);
 	_cloudShader->Set("cloudHeight", _cloudHeight_DEBUG);
 	_cloudShader->Set("cloudSlice", _cloudSlice_DEBUG);
+	_cloudShader->Set("stepSize", _rayMarchstepSize_DEBUG);
 
 	_cloudVolume->use(0);
 	target->getColorAttachment(0)->use(1); //use the prev color buffer
@@ -81,6 +82,7 @@ void CloudRenderer::Gui()
 	ImGui::DragFloat("cloudTrim", &_cloudTrim_DEBUG, 0.001f, 0.0f, 1.0f);
 	ImGui::DragFloat("cloudHeight", &_cloudHeight_DEBUG, 0.01f, 3.0f, 12.0f);
 	ImGui::DragFloat("cloudSlice", &_cloudSlice_DEBUG, 0.001f, 0.0f, 1.0f);
+	ImGui::DragFloat("ray march step size", &_rayMarchstepSize_DEBUG, 0.01f, 0.0001f, 5.0f);
 }
 
 void CloudRenderer::SetCloudVolume(std::shared_ptr<Texture3D> cloudVolume)

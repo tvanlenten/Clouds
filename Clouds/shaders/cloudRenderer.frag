@@ -24,6 +24,7 @@ uniform float cloudHeight;
 uniform float cloudSlice;
 
 uniform vec3 lightDir;
+uniform float stepSize;
 
 float min3(vec3 v) { return min(min(v.x, v.y), v.z); }
 float max3(vec3 v) { return max(max(v.x, v.y), v.z); }
@@ -99,7 +100,7 @@ vec3 castRayIQ(vec3 ro, vec3 rd, float tMin, float tMax, float stepSize, float c
 			col.rgb *= col.a;
 			sum += col*(1.0-sum.a);
 		}
-		t += max(0.05,0.02*t);
+		t += max(stepSize,stepSize*0.5*t);
 	}
 
 	vec4 res = clamp(sum, 0.0, 1.0);
@@ -150,9 +151,8 @@ void main()
 
 	//float transmittance = clamp(exp(-density), 0.0, 1.0);
 
-	float stepSize = 0.3;
-	vec3 col = castRayIQ(ro, rd, tMin + hash12(uv)*0.1, tMax, stepSize, 1.0, vec3(0.1), prevColor); //1.0 / vec3(10.0, 8.0, 10.0)
+	vec3 col = castRayIQ(ro, rd, tMin + hash12(uv)*stepSize*5.0, tMax, stepSize, 1.0, vec3(1.0), prevColor); //1.0 / vec3(10.0, 8.0, 10.0)
 
-	FragColor = vec4(col,1.0);//col;//vec4(1.0, 1.0, 1.0, density);
+	FragColor = vec4(col,1.0);;
 
 }
