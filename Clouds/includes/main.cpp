@@ -56,8 +56,6 @@ int main()
 	auto cpuTimer = std::make_shared<Utils::Timer>();
 	auto gpuTimer = std::make_shared<TimeQuery>();
 
-	auto sun = std::make_shared<Sun>();
-
 	// create sun
 	auto sun = std::make_shared<Sun>();
 
