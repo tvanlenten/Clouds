@@ -14,6 +14,8 @@ public:
 
 	std::shared_ptr<Texture3D> Generate();
 
+	void SetFreq(glm::f32 freq);
+
 private:
 	std::shared_ptr<ComputeShader> _cloudGenerator;
 	std::shared_ptr<Texture3D> _cloudVolume;
