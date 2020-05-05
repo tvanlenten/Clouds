@@ -4,6 +4,7 @@
 
 class ComputeShader;
 class TextureCubeMap;
+class TimeQuery;
 
 class SkyboxGenerator
 {
@@ -14,7 +15,7 @@ public:
 	/*
 		Generates the cubemap texture
 	*/
-	std::shared_ptr<TextureCubeMap> Generate(glm::vec3 sunDir, float sunPower);
+	std::shared_ptr<TextureCubeMap> Generate(glm::vec3 sunDir, float sunPower, bool debug = false);
 
 	/*
 		Get the skybox cubemap texture
@@ -27,6 +28,8 @@ private:
 	
 	glm::ivec2 _cubemapFaceDimensions;
 	glm::ivec3 _groupDims;
+
+	std::shared_ptr<TimeQuery> _timer;
 
 	glm::vec3 _lastSunDir;
 	float _lastSunPower;

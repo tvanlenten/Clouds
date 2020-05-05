@@ -2,6 +2,10 @@
 
 #include "../OpenGL/TextureCubeMap.h"
 #include "../OpenGL/ComputeShader.h"
+#include "../OpenGL/TimeQuery.h"
+#include "../ImGui/imgui.h"
+
+#include <iostream>
 
 SkyboxGenerator::SkyboxGenerator(glm::ivec2 cubemapFaceDims)
 {
@@ -16,16 +20,20 @@ SkyboxGenerator::SkyboxGenerator(glm::ivec2 cubemapFaceDims)
 	// some value that will never be used
 	_lastSunDir = glm::vec3(-9999.0);
 	_lastSunPower = -9999.0;
+
+	_timer = std::make_shared<TimeQuery>();
 }
 
 SkyboxGenerator::~SkyboxGenerator()
 {
 }
 
-std::shared_ptr<TextureCubeMap> SkyboxGenerator::Generate(glm::vec3 sunDir, float sunPower)
+std::shared_ptr<TextureCubeMap> SkyboxGenerator::Generate(glm::vec3 sunDir, float sunPower, bool debug)
 {
 	if (sunDir != _lastSunDir || sunPower != _lastSunPower)
 	{
+		if (debug) _timer->start();
+
 		_lastSunDir = sunDir;
 		_lastSunPower = sunPower;
 
@@ -38,6 +46,12 @@ std::shared_ptr<TextureCubeMap> SkyboxGenerator::Generate(glm::vec3 sunDir, floa
 		_skyboxGenShader->Dispatch(_groupDims);
 		_skyboxGenShader->End();
 		glMemoryBarrier(GL_ALL_BARRIER_BITS); // wait until finished generating
+
+		if (debug)
+		{
+			_timer->stop();
+			std::cout << "skybox generated in " << _timer->getDeltaTime() << "ms" << std::endl;
+		}
 	}
 
 	return _cubemapTex;

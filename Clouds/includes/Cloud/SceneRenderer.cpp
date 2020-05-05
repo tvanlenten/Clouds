@@ -19,7 +19,7 @@
 
 SceneRenderer::SceneRenderer()
 {
-	_phongShader = std::make_shared<Shader>("shaders/phong.vert", "shaders/phong.frag", nullptr, false);
+	_phongShader = std::make_shared<Shader>("shaders/terrain.vert", "shaders/terrain.frag", nullptr, false);
 	// Must bind shader before setting a uniform variable!
 	_phongShader->Start();
 	_phongShader->Set("skybox", 0);
@@ -39,8 +39,6 @@ SceneRenderer::SceneRenderer()
 	{
 		_terrain = generateBox(glm::vec3(0.0), glm::vec3(1.0));
 	}
-	
-	//_terrain = generateBox(glm::vec3(-10.0,-1.0,-10.0), glm::vec3(10.0, 0.0, 10.0));
 }
 
 SceneRenderer::~SceneRenderer()
@@ -49,15 +47,10 @@ SceneRenderer::~SceneRenderer()
 
 void SceneRenderer::Gui()
 {
-	ImGui::DragFloat3("LightPos", &_lightPos[0], 0.1);
-}
-
-void SceneRenderer::Update()
-{
 
 }
 
-void SceneRenderer::Draw(std::shared_ptr<RenderTarget> target, std::shared_ptr<TextureCubeMap> skyboxTexture, std::shared_ptr<Camera> camera)
+void SceneRenderer::Draw(std::shared_ptr<RenderTarget> target, std::shared_ptr<TextureCubeMap> skyboxTexture, std::shared_ptr<Camera> camera, glm::vec3 lightDir)
 {
 	CullFace();
 
@@ -68,9 +61,8 @@ void SceneRenderer::Draw(std::shared_ptr<RenderTarget> target, std::shared_ptr<T
 	_phongShader->Set("model", model);
 	_phongShader->Set("normalMatrix", GetNormalMatrix(model));
 	_phongShader->Set("projView", camera->ProjectionViewMatrix());
-	_phongShader->Set("lightPos", _lightPos);
+	_phongShader->Set("lightDir", lightDir);
 	_phongShader->Set("cameraPos", camera->Position);
-	_phongShader->Set("color", glm::vec4(0.0, 1.0, 0.0, 1.0));
 
 	_terrain->draw();
 	_phongShader->End();
