@@ -56,6 +56,7 @@ int main()
 	auto cpuTimer = std::make_shared<Utils::Timer>();
 	auto gpuTimer = std::make_shared<TimeQuery>();
 
+	// create sun
 	auto sun = std::make_shared<Sun>();
 
 	// create generators
@@ -113,6 +114,9 @@ int main()
 			controller.showMouse();
 			camera->shouldUpdate(false);
 		}
+
+		// update skybox will only run if something has changed
+		skyboxGenerator->Generate(sun->GetDirection(), sun->GetPower());
 
 		// generate clouds conditionally
 		if (regenTex)
@@ -181,6 +185,7 @@ int main()
 		sceneRenderer->Gui();
 		ImGui::Separator();
 		skyboxRenderer->Gui();
+		sun->Gui();
 		ImGui::Separator();
 		cloudRenderer->Gui();
 		ImGui::Separator();
