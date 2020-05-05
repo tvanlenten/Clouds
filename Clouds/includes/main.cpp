@@ -78,7 +78,6 @@ int main()
 	//DEBUG VALUES FOR TEXTURE
 	auto texDebugShader = std::make_shared<Shader>("shaders/screen.vert", "shaders/debugCloudTex.frag", nullptr, false);
 	bool debuggingTex = false;
-	int channel = 0;
 	bool regenTex = false;
 	float freqDebug = 4.0;
 	static int channel = 0;

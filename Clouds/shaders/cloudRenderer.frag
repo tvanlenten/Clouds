@@ -49,8 +49,9 @@ void getDepth(inout float t, vec3 ro)
 }
 
 bool InBounds(vec3 coord, vec3 minB, vec3 maxB) { return !any(bvec3(step(minB, coord) - step(coord, maxB))); }
-float getCloud(vec3 p, vec3 scale)
-{	
+
+float getCloud(vec3 p, vec3 scale, float cloudDensity)
+{
 	vec4 den = texture(cloudVolume, p * vec3(xScale, yScale, zScale));
 	float perlinWorley = smoothstep(cloudDefinition, 1.0, den.r);
 	// worley fbms with different frequencies
@@ -65,63 +66,7 @@ float getCloud(vec3 p, vec3 scale)
 	// vec4 den = texture(cloudVolume, p * vec3(0.07,0.1,0.1));
 	// float f = smoothstep(0.6, 1.0, den.x)*0.5 + den.y*0.25 + den.z*0.125 + den.w*0.0625;
 
-	return smoothstep(1.0, 0.0, abs((p.y - cloudHeight)*cloudSlice))*cloud; //clamp(-abs(p.y - 6.0) + 4.0*f, 0.0, 1.0 );
-}
-
-float getCloudNew(vec3 p, vec3 scale, float cloudDensity)
-{
-	// Create cloud effects!
-	float perlinWorley = texture(cloudVolume, p*scale).r;
-	// worley fbms with different frequencies
-	vec3 worley = texture(cloudVolume, p*scale).gba;
-	float wfbm = worley.x * .625 +
-				worley.y * .125 +
-				worley.z * .25; 
-	// cloud shape modeled after the GPU Pro 7 chapter
-	float cloud = remap(perlinWorley, wfbm - 1., 1., 0., 1.);
-	cloud = remap(cloud, .85, 1., 0., 1.); // fake cloud coverage
-	
-	return cloud * cloudDensity;
-}
-
-float castLightRay(vec3 ro, vec3 rd, float tMin, float tMax, float stepSize, float cloudDensity, vec3 scale)
-{
-	float t = tMin;
-	float dt = tMax - tMin;
-	
-	float density = 0.0;
-	while(t < tMax)
-	{
-		if(density >= 1.0)
-			break;
-		density += getCloud(ro + rd*t, scale) * stepSize * cloudDensity;
-		t += stepSize;
-	}
-
-	return density;
-}
-
-
-// constant step ray marching
-float castRay(vec3 ro, vec3 rd, float tMin, float tMax, float stepSize, float cloudDensity, vec3 scale)
-{
-	float t = tMin;
-	float dt = tMax - tMin;
-
-	float light = 0.0;
-	while(t < tMax)
-	{
-		//float tempD = getCloud(ro + rd*t, scale) * cloudDensity;
-
-		float tempL = castLightRay(ro + rd*t, lightDir, 0.0, 1.0, 0.2, cloudDensity, scale);
-
-		light += tempL * stepSize;
-
-		//density += getCloud(ro + rd*t, scale) * cloudDensity;
-		t += max(t*stepSize*0.5, stepSize);
-	}
-
-	return light;
+	return smoothstep(1.0, 0.0, abs((p.y - cloudHeight)*cloudSlice)) * cloud * cloudDensity; //clamp(-abs(p.y - 6.0) + 4.0*f, 0.0, 1.0 );
 }
 
 vec3 castRayIQ(vec3 ro, vec3 rd, float tMin, float tMax, float stepSize, float cloudDensity, vec3 scale, vec3 prevCol)
@@ -137,11 +82,11 @@ vec3 castRayIQ(vec3 ro, vec3 rd, float tMin, float tMax, float stepSize, float c
 	while(t < tMax)
 	{
 		vec3 pos = ro + t*rd;
-		float den = getCloudNew(pos, scale, cloudDensity)*cloudDensity;
+		float den = getCloud(pos, scale, cloudDensity)*cloudDensity;
 		if( den>0.01 )
 		{
 
-			float cc = getCloudNew(pos+0.3*lightDir, scale, cloudDensity);
+			float cc = getCloud(pos+0.3*lightDir, scale, cloudDensity);
 			float dif = clamp((den - cc)*1.5, 0.0, 1.0 );
 
 			//col.xyz = mix( col.xyz, prevCol, 1.0-exp(-0.003*t*t) );
