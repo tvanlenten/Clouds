@@ -45,16 +45,6 @@ void CloudRenderer::Draw(std::shared_ptr<RenderTarget> target, std::shared_ptr<C
 	_cloudShader->Start();
 	_cloudShader->Set("invProjView", camera->InverseProjectionViewMatrix());
 	_cloudShader->Set("lightDir", glm::normalize(_lightDir));
-
-	// Vary Cloud shapes and sizes
-	_cloudShader->Set("xScale", _xScale_DEBUG);
-	_cloudShader->Set("yScale", _yScale_DEBUG);
-	_cloudShader->Set("zScale", _zScale_DEBUG);
-	_cloudShader->Set("cloudDefinition", _cloudDefinition_DEBUG);
-	_cloudShader->Set("cloudTrim", _cloudTrim_DEBUG);
-	_cloudShader->Set("cloudHeight", _cloudHeight_DEBUG);
-	_cloudShader->Set("cloudSlice", _cloudSlice_DEBUG);
-
 	_cloudVolume->use(0);
 	target->getColorAttachment(0)->use(1); //use the prev color buffer
 	target->getDepthAttachment()->use(2); //use the prev depth buffer
@@ -73,17 +63,5 @@ void CloudRenderer::Draw(std::shared_ptr<RenderTarget> target, std::shared_ptr<C
 void CloudRenderer::Gui()
 {
 	ImGui::DragFloat3("lightDir", &_lightDir[0], 0.1);
-
-	ImGui::DragFloat("xScale", &_xScale_DEBUG, 0.001f, 0.025f, 0.25f);
-	ImGui::DragFloat("yScale", &_yScale_DEBUG, 0.001f, 0.025f, 0.25f);
-	ImGui::DragFloat("zScale", &_zScale_DEBUG, 0.001f, 0.025f, 0.25f);
-	ImGui::DragFloat("cloudDefinition", &_cloudDefinition_DEBUG, 0.001f, 0.0f, 1.0f);
-	ImGui::DragFloat("cloudTrim", &_cloudTrim_DEBUG, 0.001f, 0.0f, 1.0f);
-	ImGui::DragFloat("cloudHeight", &_cloudHeight_DEBUG, 0.01f, 3.0f, 12.0f);
-	ImGui::DragFloat("cloudSlice", &_cloudSlice_DEBUG, 0.001f, 0.0f, 1.0f);
 }
 
-void CloudRenderer::SetCloudVolume(std::shared_ptr<Texture3D> cloudVolume)
-{
-	_cloudVolume = cloudVolume;
-}

@@ -64,7 +64,7 @@ void SceneRenderer::Draw(std::shared_ptr<RenderTarget> target, std::shared_ptr<T
 	_phongShader->Start();
 
 	auto model = glm::mat4(1.0);
-	model = glm::translate(model, glm::vec3(-16.0, 2.0, -16.0));
+	model = glm::translate(model, glm::vec3(-16.0, -4.0, -16.0));
 	_phongShader->Set("model", model);
 	_phongShader->Set("normalMatrix", GetNormalMatrix(model));
 	_phongShader->Set("projView", camera->ProjectionViewMatrix());
@@ -74,6 +74,7 @@ void SceneRenderer::Draw(std::shared_ptr<RenderTarget> target, std::shared_ptr<T
 
 	_terrain->draw();
 	_phongShader->End();
+
 
 	DisableCullFace();
 }

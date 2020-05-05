@@ -76,8 +76,3 @@ std::shared_ptr<Texture3D> CloudGenerator::Generate()
 
 	return _cloudVolume;
 }
-
-void CloudGenerator::SetFreq(glm::f32 freq)
-{
-	_frequency = freq;
-}
